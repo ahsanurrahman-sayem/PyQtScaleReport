@@ -1,12 +1,16 @@
 from db import getWeightById, addNewWeight, getAllWeights, getLastRowId, updateWeight
-from pdf_generator import generate_pdf
-from utils import getNow
 from models import WeightData
+
+from pdf_generator import generate_pdf
+from utils import getNow, openFile
+from validator import isZero, isDigit
 
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QMessageBox
+
 import sys, os, platform, subprocess, win32event, win32api, winerror
+
 
 class ScaleReportApp(QtWidgets.QMainWindow):
 	def __init__(self):
@@ -125,6 +129,13 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 
 	def isZero(self, value: str):
 		return "" if value == "0" else getNow()
+	def getFieldValue(self,value):
+	#return the value from QtEntryField Object
+		return self.create_fields[value].text().strip()
+
+	def filedValue(self,value:QtWidgets.QLineEdit):
+	#selects a field object and return text from it
+		return value.text.strip()
 
 	def focusNextEmptyEntry(self):
 		for entry in self.entries.values():
@@ -150,28 +161,31 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.modify_unload_entry.setText(str(int(data.unload_weight)))
 	def submit_entry(self):
 		try:
-			custom_id = self.create_fields["Id"].text().strip()
+			custom_id = getFieldValue("Id")
 			weight_id = int(custom_id) if custom_id.isdigit() else None
-			load_weight = self.create_fields["Load Weight (kg)"].text().strip() or "0"
-			unload_weight = self.create_fields["Unload Weight (kg)"].text().strip() or "0"
+			load_weight = str(isDigit(getFieldValue("Load Weight (kg)")))
+			unload_weight = str(isDigit(getFieldValue("Unload Weight (kg)")))
 
+			field_keys = {
+					"vehicle_no": "Vehicle No",
+					"client_name": "Client Name",
+					"challan_no": "Challan/LC No",
+					"driver": "Driver",
+					"address": "Address",
+					"item_name": "Item Name",
+					"qty": "Quantity",
+					"contact": "Contact"
+				}
 			data = {
-				"operator": self.create_fields["Operator"].text().strip() or "Admin",
-				"vehicle_no": self.create_fields["Vehicle No"].text().strip(),
-				"client_name": self.create_fields["Client Name"].text().strip(),
-				"challan_no": self.create_fields["Challan/LC No"].text().strip(),
-				"driver": self.create_fields["Driver"].text().strip(),
-				"address": self.create_fields["Address"].text().strip(),
-				"item_name": self.create_fields["Item Name"].text().strip(),
-				"qty": self.create_fields["Quantity"].text().strip(),
-				"contact": self.create_fields["Contact"].text().strip(),
+				"operator": getFieldValue("Operator") or "Admin",
 				"load_weight": load_weight,
-				"load_weight_date": self.isZero(load_weight),
+				"load_weight_date": isZero(load_weight),
 				"unload_weight": unload_weight,
-				"unload_weight_date": self.isZero(unload_weight),
+				"unload_weight_date": isZero(unload_weight),
 				"net_weight": str(int(load_weight) - int(unload_weight)) or "0",
-				"party_type": "CLIENT"
-			}
+				"party_type": "CLIENT",
+				**{key: getFieldValue(label) for key, label in field_keys.items()}
+}
 
 			weight_obj = WeightData(id=weight_id,**data) if weight_id is not None else WeightData(id=getLastRowId(),**data)
 
@@ -179,7 +193,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			fp = generate_pdf(data, f"{data['client_name']}_weight_report_{data['id']}.pdf")
 			
 			self.load_data()
-			self.openFile(fp)
+			openFile(fp)
 		except Exception as e:
 			QtWidgets.QMessageBox.critical(self, "Error", str(e))
 
@@ -208,16 +222,8 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.load_data()
 
 		except Exception as e:
-			QMessageBox.critical(self, "Error", f"Failed to update data:\n{e}")		
+			QMessageBox.critical(self, "Error", f"Failed to update data:\n{e}")	
 
-	def openFile(self,fp):
-		#Open files using this method
-		if platform.system() == "Windows" or platform.system() == "nt":
-				os.startfile(fp)
-		elif platform.system() == "Darwin":
-			subprocess.run(["open", fp])
-		else:
-			subprocess.run(["xdg-open", fp])
 
 	def search_entry_func(self):
 		weight_id = self.search_input.text().strip()
@@ -263,7 +269,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		if data:
 			filename = f"{data.client_name}_weight_report_{data.id}.pdf"
 			fp = generate_pdf(data.__dict__, filename)
-			self.openFile(fp)
+			openFile(fp)
 
 if __name__ == "__main__":
 	mutex = win32event.CreateMutex(None,False,"ScaleReportFinalQtAppPort")

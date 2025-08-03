@@ -9,6 +9,7 @@ class WeightReportPDF(FPDF):
 	def __init__(self, operator: str):
 		super().__init__()
 		self.operator = operator
+		self.set_margin(0.0)
 	def isEmpty(self,var):
 		if var == "0":
 			return "0"
@@ -32,18 +33,19 @@ class WeightReportPDF(FPDF):
 		self.ln(4)
 
 	def footer(self):
-		self.set_y(125)
+		self.set_y(120)
 		self.set_font("Helvetica", style="B", size=9)
 		labels = ["Received by", "Supervised by", "Operated by", "Authorized by"]
+		self.cell(10, 0, "", border="1", align="C")
 		for label in labels:
-			self.cell(30, 10, label, border="T", align="C")
+			self.cell(25, 10, label, border="T", align="C")
 			self.cell(10, 0, "", border="1", align="C")
 		self.ln(10)
 
 	def report_table(self, data: dict):
 		self.set_font("Helvetica", style="B", size=11)
 		rows = [
-			["Weight ID", f": {data['id']}", "Scale ID: 1", " ", "Party Type", f"{data['party_type']:<18} Print Date: {getToday()}"],
+			["Weight ID", f": {data['id']}", "Scale ID: 1", " ", "Party Type", f"{data['party_type']:<43} Print Date: {getToday()}"],
 			["Vehicle No", f": {data['vehicle_no']}", "", "", "Client Name", data["client_name"]],
 			["Challan/LC No", ": " + data.get("challan_no", ""), "", "", "Address", data.get("address", "")],
 			["Item Name", ": " + data["item_name"], "QTY:", data.get("qty", ""), "Contact", data.get("contact", "")],
@@ -51,7 +53,7 @@ class WeightReportPDF(FPDF):
 			["Unload Weight", ": " + str(int(data["unload_weight"])), "Kg", "Deduct", "Unload Date", self.isToDate(data["unload_weight_date"])],
 			["Net Weight", ": " + str(int(self.isEmpty(data["load_weight"])) - int(self.isEmpty(data["unload_weight"]))) or "0", "Kg", "", "Driver", data.get("driver", "")]
 		]
-		col_widths = [30, 30, 8, 40, 20, 65]
+		col_widths = [30, 30, 8, 40, 20, 80]
 		for row in rows:
 			for i, item in enumerate(row):
 				border = 'TB'
@@ -61,6 +63,10 @@ class WeightReportPDF(FPDF):
 				if i == 5:
 					border = 'RTB'
 					self.set_font("Helvetica", style="B", size=9)
+					if item.__contains__("Print Date:"):
+						align= 'R'
+						border = 'RTB'
+						self.set_font("Helvetica", style="B", size=9)
 				if i == 4:
 					align = 'R'
 					border = 'RTB'

@@ -61,7 +61,7 @@ def create_report():
 		"unload_weight": unload_weight,
 		"unload_weight_date": isZero(unload_weight),
 		"net_weight": str(int(load_weight) - int(unload_weight)),
-		"party_type": "CLIENT"
+		"party_type": "PARTY"
 	}
 
 	weight_obj = WeightData(id=weight_id, **data)
