@@ -30,12 +30,11 @@ def getConnection():
 	return conn
 
 def getAllWeights():
-	conn = getConnection()
-	cursor = conn.cursor()
-	cursor.execute("SELECT * FROM weights")
-	rows = cursor.fetchall()
-	conn.close()
-	return [WeightData(*row) for row in rows]
+	with getConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("SELECT * FROM weights")
+		rows = cursor.fetchall()
+		return [WeightData(*row) for row in rows]
 
 def getWeightById(weight_id):
 	conn = getConnection()
@@ -115,7 +114,14 @@ def addNewWeight(data: WeightData):
 def getLastRowId():
 	conn = getConnection()
 	cursor = conn.cursor()
-	weight_id = cursor.lastrowid
-
+	cursor.execute("SELECT MAX(id) FROM weights")
+	result = cursor.fetchone()
 	conn.close()
-	return weight_id
+	return result[0] if result else None
+
+def del_data(weight_id: int):
+	conn = getConnection()
+	cursor = conn.cursor()
+	cursor.execute("DELETE FROM weights WHERE id = ?", (weight_id,))
+	conn.commit()
+	conn.close()

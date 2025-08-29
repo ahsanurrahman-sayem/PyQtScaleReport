@@ -8,7 +8,8 @@ from db import (
 	addNewWeight,
 	getAllWeights,
 	getLastRowId,
-	updateWeight
+	updateWeight,
+	del_data
 )
 from models import WeightData
 from pdf_generator import generate_pdf
@@ -131,6 +132,15 @@ def edit_report(weight_id: int):
 	updateWeight(data)
 	print("✅ Weight data updated successfully.")
 
+def delete_report(weight_id: int):
+	data = getWeightById(weight_id)
+	if not data:
+		print("⚠ No data found for that ID.")
+		return
+	print(f"\Deleting Record ID: {data.id}")
+	print(f"Current Load Weight: {data.load_weight}")
+	print(f"Current Unload Weight: {data.unload_weight}")
+	del_data(data.id)
 
 def open_pdf(fp):
 	try:
