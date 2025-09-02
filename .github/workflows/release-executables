@@ -56,18 +56,14 @@ jobs:
             mv dist/ScaleReportGUI release/ScaleReportGUI-$SUFFIX
           fi
 
-            - name: Delete old assets from "executables" release
-        run: |
-          gh release view executables --json assets --jq '.assets[].name' | xargs -I {} gh release delete-asset executables "{}" -y
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Upload new assets to "executables" release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: executables
-          name: "Executables Release"
-          files: release/*
-          overwrite: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+  uses: softprops/action-gh-release@v2
+  with:
+    tag_name: executables
+    name: "Executables Release"
+    files: release/*
+    overwrite: true   # replaces existing assets by name
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
