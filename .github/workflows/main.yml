@@ -34,22 +34,22 @@ jobs:
       # Step 4: Build CLI Executable
       - name: Build CLI Executable
         run: |
-          pyinstaller --onefile --name "ScaleReportCL --add-data "fonts:fonts" --icon favicon.ico __mainCLI__.py
+          pyinstaller --onefile --name MyAppCLI --add-data "fonts:fonts" --icon favicon.ico __mainCLI__.py
 
       # Step 5: Build GUI Executable
       - name: Build GUI Executable
         run: |
-          pyinstaller --onefile --name "Scale Report" --add-data "fonts:fonts" --icon favicon.ico __mainQtGUI__.py
+          pyinstaller --onefile --name MyAppGUI --add-data "fonts:fonts" --icon favicon.ico __mainQtGUI__.py
 
       # Step 6: Upload the artifacts (executables)
       - name: Upload CLI Executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Updated to v4
         with:
           name: executable-CLI-${{ matrix.os }}
-          path: dist/Command Line Tool*
+          path: dist/MyAppCLI*
 
       - name: Upload GUI Executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Updated to v4
         with:
           name: executable-GUI-${{ matrix.os }}
-          path: dist/ScaleReport*
+          path: dist/MyAppGUI*
