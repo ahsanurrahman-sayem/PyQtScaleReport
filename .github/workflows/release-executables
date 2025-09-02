@@ -1,0 +1,73 @@
+name: Build and Release Executables
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write   # allow creating/updating releases
+
+jobs:
+  build-and-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyqt5 fpdf2 pyinstaller
+
+      - name: Build CLI Executable
+        run: |
+          pyinstaller --onefile --name "ScaleReportCLI" --add-data "fonts:fonts" --icon favicon.ico __mainCLI__.py
+
+      - name: Build GUI Executable
+        run: |
+          pyinstaller --onefile --name "ScaleReportGUI" --add-data "fonts:fonts" --icon favicon.ico __mainQtGUI__.py
+
+      - name: Rename Artifacts with OS Suffix
+        run: |
+          OS_NAME=${{ matrix.os }}
+          case "$OS_NAME" in
+            ubuntu-*) SUFFIX="ubuntu" ;;
+            macos-*) SUFFIX="macos" ;;
+            windows-*) SUFFIX="windows.exe" ;;
+          esac
+
+          mkdir release
+          if [[ "$OS_NAME" == windows-* ]]; then
+            mv dist/ScaleReportCLI.exe release/ScaleReportCLI-$SUFFIX
+            mv dist/ScaleReportGUI.exe release/ScaleReportGUI-$SUFFIX
+          else
+            mv dist/ScaleReportCLI release/ScaleReportCLI-$SUFFIX
+            mv dist/ScaleReportGUI release/ScaleReportGUI-$SUFFIX
+          fi
+
+            - name: Delete old assets from "executables" release
+        run: |
+          gh release view executables --json assets --jq '.assets[].name' | xargs -I {} gh release delete-asset executables "{}" -y
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload new assets to "executables" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: executables
+          name: "Executables Release"
+          files: release/*
+          overwrite: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
