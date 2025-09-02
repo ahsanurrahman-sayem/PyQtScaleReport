@@ -40,20 +40,20 @@ jobs:
       # Step 5: Build GUI Executable
       - name: Build GUI Executable
         run: |
-          pyinstaller --onefile --name "Scale Report" --add-data "fonts:fonts" --icon favicon.ico __mainQtGUI__.py
+          pyinstaller --onefile --name "ScaleReportGUI" --add-data "fonts:fonts" --icon favicon.ico __mainQtGUI__.py
 
       # Step 6: Upload artifacts to the job workspace
       - name: Upload CLI Executable
         uses: actions/upload-artifact@v4
         with:
-          name: ScaleReportCLI-${{ matrix.os }}
+          name: CLI-${{ matrix.os }}
           path: dist/ScaleReportCLI*
 
       - name: Upload GUI Executable
         uses: actions/upload-artifact@v4
         with:
-          name: Scale Report-${{ matrix.os }}
-          path: dist/Scale Report*
+          name: GUI-${{ matrix.os }}
+          path: dist/ScaleReportGUI*
 
   release:
     name: Create GitHub Release
@@ -64,14 +64,14 @@ jobs:
       - name: Download CLI Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ScaleReportCLI-${{ matrix.os }}
-          path: ./artifacts
+          name: CLI-ubuntu-latest
+          path: ./artifacts/ubuntu
 
       - name: Download GUI Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Scale Report-${{ matrix.os }}
-          path: ./artifacts
+          name: GUI-ubuntu-latest
+          path: ./artifacts/ubuntu
 
       # Step 2: Create or update a GitHub Release
       - name: Create Release
@@ -92,8 +92,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/ScaleReportCLI*
-          asset_name: ScaleReportCLI-${{ matrix.os }}
+          asset_path: ./artifacts/ubuntu/ScaleReportCLI*
+          asset_name: ScaleReportCLI-ubuntu
           asset_content_type: application/octet-stream
 
       - name: Upload GUI Executable to Release
@@ -102,6 +102,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/Scale Report*
-          asset_name: Scale Report-${{ matrix.os }}
+          asset_path: ./artifacts/ubuntu/ScaleReportGUI*
+          asset_name: ScaleReportGUI-ubuntu
           asset_content_type: application/octet-stream
