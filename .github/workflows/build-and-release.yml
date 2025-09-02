@@ -78,7 +78,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ghp_nmaxqSrklpq6pliDKh-LW67dt0D4WJM2hB20B
         with:
           tag_name: v1.0.0
           release_name: "Release v1.0.0"
@@ -89,7 +89,7 @@ jobs:
       - name: Upload CLI Executable to Release
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ghp_nmaxqSrklpq6pliDKh-LW67dt0D4WJM2hB20B
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/ubuntu/ScaleReportCLI*
@@ -99,7 +99,7 @@ jobs:
       - name: Upload GUI Executable to Release
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ghp_nmaxqSrklpq6pliDKh-LW67dt0D4WJM2hB20B
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/ubuntu/ScaleReportGUI*
