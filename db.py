@@ -68,36 +68,43 @@ def updateWeight(weight: WeightData):
 def addNewWeight(data: WeightData):
 	conn = getConnection()
 	cursor = conn.cursor()
-
+	#print("addNewWeight() has been called - with arg: ",data.id)
+	# --> if data.id is not getLastRowId():
+		#print("method got custom argument while init - ",data.id)
+		# custom id
 	if data.id is not None:
+		#Custom ID Section
 		cursor.execute("""
-		INSERT INTO weights (
-			id, operator, vehicle_no, client_name, challan_no, driver,
-			address, item_name, qty, contact,
-			load_weight, load_weight_date,
-			unload_weight, unload_weight_date, net_weight,
-			party_type
-		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		""", (
-			data.id, data.operator, data.vehicle_no, data.client_name, data.challan_no, data.driver,
-			data.address, data.item_name, data.qty, data.contact,
-			data.load_weight, data.load_weight_date,
-			data.unload_weight, data.unload_weight_date, data.net_weight,
-			data.party_type
-		))
+			INSERT INTO weights (
+				id, operator,
+				vehicle_no,
+				client_name, 
+				challan_no,
+				driver,
+				address,
+				item_name, 
+				qty, contact,
+				load_weight,
+				load_weight_date,
+				unload_weight,
+				unload_weight_date,
+				net_weight,
+				party_type) VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
+		""", (data.id, data.operator, data.vehicle_no, data.client_name, data.challan_no, data.driver, data.address, data.item_name, data.qty, data.contact, data.load_weight, data.load_weight_date, data.unload_weight, data.unload_weight_date, data.net_weight, data.party_type))
 		conn.commit()
 		weight_id = data.id
 	else:
+		#I want if the data.id is None then code in this scope should run.
+		# Auto increament id section --> 
 		cursor.execute("""
-		INSERT INTO weights (
-			operator, vehicle_no, client_name, challan_no, driver,
-			address, item_name, qty, contact,
-			load_weight, load_weight_date,
-			unload_weight, unload_weight_date, net_weight,
-			party_type
-		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			INSERT INTO weights (
+				operator, vehicle_no, client_name, challan_no, driver,
+				address, item_name, qty, contact,
+				load_weight, load_weight_date,
+				unload_weight, unload_weight_date, net_weight,
+				party_type
+			)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
 		""", (
 			data.operator, data.vehicle_no, data.client_name, data.challan_no, data.driver,
 			data.address, data.item_name, data.qty, data.contact,

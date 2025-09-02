@@ -53,7 +53,7 @@ class WeightReportPDF(FPDF):
 			["Unload Weight", ": " + str(int(data["unload_weight"])), "Kg", "Deduct", "Unload Date", self.isToDate(data["unload_weight_date"])],
 			["Net Weight", ": " + str(int(self.isEmpty(data["load_weight"])) - int(self.isEmpty(data["unload_weight"]))) or "0", "Kg", "", "Driver", data.get("driver", "")]
 		]
-		col_widths = [30, 30, 8, 40, 20, 80]
+		col_widths = [30, 30, 8, 40, 10,10, 80]
 		for row in rows:
 			for i, item in enumerate(row):
 				border = 'TB'
@@ -73,11 +73,65 @@ class WeightReportPDF(FPDF):
 				self.cell(col_widths[i], 9, item, border=border, align=align)
 				self.set_font("Helvetica", style="B", size=11)
 			self.ln()
+	
+	#ChatGPT version -->
+	def reportTable(self, data: dict):
+		self.set_font("Helvetica", style="B", size=11)
+	
+		try:
+			net_weight = str(int(self.isEmpty(data["load_weight"])) - int(self.isEmpty(data["unload_weight"])))
+		except (ValueError, TypeError):
+			net_weight = "0"
+	
+		rows = [
+				["Weight ID", f": {data['id']}", "Scale ID: 1", " ", "Party Type", f"{data['party_type']}", f"Print Date: {getToday()}"],
+			["Vehicle No", f": {data['vehicle_no']}", "", "", "Client Name", data["client_name"], ""],
+			["Challan/LC No", ": " + data.get("challan_no", ""), "", "", "Address", data.get("address", ""),""],
+			["Item Name", ": " + data["item_name"], "QTY:", data.get("qty", ""), "Contact", data.get("contact", ""), ""],
+			["Load Weight", ": " + str(int(data["load_weight"])), "Kg", "", "Load Date", self.isToDate(data["load_weight_date"]),""],
+			["Unload Weight", ": " + str(int(data["unload_weight"])), "Kg", "Deduct", "Unload Date", self.isToDate(data["unload_weight_date"]), ""],
+			["Net Weight", f": {net_weight}", "Kg", "", "Driver", data.get("driver", ""), ""]
+		]
 
+	# Get total page width (minus margins)
+		page_width = self.w - 2 * self.l_margin
+	
+		# Relative column proportions (weights)
+		col_ratios = [30, 30, 8, 30,10, 10, 80]  
+		total_ratio = sum(col_ratios)
+	
+		# Scale column widths to fit full page
+		col_widths = [(r / total_ratio) * page_width for r in col_ratios]
+	
+		for row in rows:
+			for i, item in enumerate(row):
+				text = str(item)
+				border = 'TB'
+				align = 'L'
+				if i == 0:
+					border = 'LTB'
+				if i== 3:
+					border='TB'
+				if i == 4 or i==6:
+					align = 'R'
+					border = 'RTB'
+				if i == 5:
+					border = 'TB'
+					self.set_font("Helvetica", style="B", size=9)
+					#if "Print Date:" in text:
+						#align = 'R'
+
+				# Shrink text if too long for column
+				if self.get_string_width(text) > col_widths[i]:
+					self.set_font("Helvetica", style="B", size=8)
+				self.cell(col_widths[i], 9, text, border=border, align=align)
+				self.set_font("Helvetica", style="B", size=11)
+			self.ln()
+	
 def generate_pdf(data, filename: str):
 	pdf = WeightReportPDF(data["operator"])
 	pdf.add_page()
-	pdf.report_table(data)
+	pdf.reportTable(data)
 	file_path = os.path.join(REPORT_DIR, filename)
 	pdf.output(file_path)
 	return file_path

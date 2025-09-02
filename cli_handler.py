@@ -29,50 +29,58 @@ def isZero(value):
 
 
 def create_report():
-	print("\n📝 Create New Weight Report")
-	custom_id = get_input("Enter Custom ID (optional): ")
-	weight_id = int(custom_id) if custom_id.isdigit() else getLastRowId()
+	try:
+		print("\n📝 Create New Weight Report")
+		custom_id = get_input("Enter Custom ID (optional): ")
+		weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
+		"""
+		if weight_id is getLastRowId():
+				print("variable 'custom_id' got - default last row id of database, need to auto increment.")
+		else:
+			print("variable 'weight_id' got custom weight id, creating custom report")
+		"""
 
-	vehicle_no = get_input("Vehicle No: ")
-	client_name = get_input("Client Name: ")
-	challan_no = get_input("Challan/LC No: ")
-	driver = get_input("Driver: ")
-	address = get_input("Address: ")
-	item_name = get_input("Item Name: ")
-	qty = get_input("Quantity: ")
-	contact = get_input("Contact: ")
-	load_weight = get_input("Load Weight (kg): ")
-	unload_weight = get_input("Unload Weight (kg): ")
+		vehicle_no = get_input("Vehicle No: ")
+		client_name = get_input("Client Name: ")
+		challan_no = get_input("Challan/LC No: ")
+		driver = get_input("Driver: ")
+		address = get_input("Address: ")
+		item_name = get_input("Item Name: ")
+		qty = get_input("Quantity: ")
+		contact = get_input("Contact: ")
+		load_weight = get_input("Load Weight (kg): ")
+		unload_weight = get_input("Unload Weight (kg): ")
+	
+		load_weight = load_weight if load_weight.isdigit() else "0"
+		unload_weight = unload_weight if unload_weight.isdigit() else "0"
+	
+		data = {
+			"operator": "Admin",
+			"vehicle_no": vehicle_no,
+			"client_name": client_name,
+			"challan_no": challan_no,
+			"driver": driver,
+			"address": address,
+			"item_name": item_name,
+			"qty": qty,
+			"contact": contact,
+			"load_weight": load_weight,
+			"load_weight_date": isZero(load_weight),
+			"unload_weight": unload_weight,
+			"unload_weight_date": isZero(unload_weight),
+				"net_weight": str(int(load_weight) - int(unload_weight)),
+			"party_type": "PARTY"
+		}
 
-	load_weight = load_weight if load_weight.isdigit() else "0"
-	unload_weight = unload_weight if unload_weight.isdigit() else "0"
-
-	data = {
-		"operator": "Admin",
-		"vehicle_no": vehicle_no,
-		"client_name": client_name,
-		"challan_no": challan_no,
-		"driver": driver,
-		"address": address,
-		"item_name": item_name,
-		"qty": qty,
-		"contact": contact,
-		"load_weight": load_weight,
-		"load_weight_date": isZero(load_weight),
-		"unload_weight": unload_weight,
-		"unload_weight_date": isZero(unload_weight),
-		"net_weight": str(int(load_weight) - int(unload_weight)),
-		"party_type": "PARTY"
-	}
-
-	weight_obj = WeightData(id=weight_id, **data)
-	final_id = addNewWeight(weight_obj)
-	data["id"] = final_id
-	filename = f"{data['client_name']}_weight_report_{final_id}.pdf"
-	fp = generate_pdf(data, filename)
-
-	open_pdf(fp)
-	print("✅ Report created and saved as:", filename)
+		weight_obj = WeightData(id=weight_id, **data)
+		data["id"] = addNewWeight(weight_obj)
+		filename = f"{data['client_name']}_weight_report_{data['id']}.pdf"
+		fp = generate_pdf(data, filename)
+	
+		open_pdf(fp)
+		print("✅ Report created and saved as:", filename)
+	except Exception as e:
+		print("!!! --*-- Exception --*-- !!!\n"+str(e)+"\nPlease insert a uniqe Custom Weight Id which is't available in the database, or just do not insert any Id as the system will auto generate the ID itself.\nThanks for using the service!")
 
 
 def search_report(weight_id: int):

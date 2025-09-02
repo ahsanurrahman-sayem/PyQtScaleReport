@@ -162,7 +162,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 	def submit_entry(self):
 		try:
 			custom_id = getFieldValue("Id")
-			weight_id = int(custom_id) if custom_id.isdigit() else None
+			weight_id = weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
 			load_weight = str(isDigit(getFieldValue("Load Weight (kg)")))
 			unload_weight = str(isDigit(getFieldValue("Unload Weight (kg)")))
 
@@ -187,7 +187,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 				**{key: getFieldValue(label) for key, label in field_keys.items()}
 }
 
-			weight_obj = WeightData(id=weight_id,**data) if weight_id is not None else WeightData(id=getLastRowId(),**data)
+			weight_obj = WeightData(id=weight_id,**data)
 
 			data["id"]=addNewWeight(weight_obj)
 			fp = generate_pdf(data, f"{data['client_name']}_weight_report_{data['id']}.pdf")
@@ -195,7 +195,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.load_data()
 			openFile(fp)
 		except Exception as e:
-			QtWidgets.QMessageBox.critical(self, "Error", str(e))
+			QtWidgets.QMessageBox.critical(self, "!!! --*-- Exception --*-- !!!\n"+str(e)+"\nPlease insert a uniqe Custom Weight Id which is't available in the database, or just do not insert any Id as the system will auto generate the ID itself.\nThanks for using the service!", str(e))
 
 	def save_modified_weights(self):
 		try:
