@@ -17,7 +17,7 @@ jobs:
     steps:
       # Step 1: Check out the code from the repository
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Step 2: Set up Python
       - name: Set up Python
@@ -35,7 +35,7 @@ jobs:
       # Step 4: Build CLI Executable
       - name: Build CLI Executable
         run: |
-          pyinstaller --onefile --name ScaleReportCLi --add-data "fonts:fonts" --icon favicon.ico __mainCLI__.py
+          pyinstaller --onefile --name "ScaleReportCLI" --add-data "fonts:fonts" --icon favicon.ico __mainCLI__.py
 
       # Step 5: Build GUI Executable
       - name: Build GUI Executable
@@ -46,13 +46,13 @@ jobs:
       - name: Upload CLI Executable
         uses: actions/upload-artifact@v4
         with:
-          name: CLI-${{ matrix.os }}
+          name: ScaleReportCLI-${{ matrix.os }}
           path: dist/ScaleReportCLI*
 
       - name: Upload GUI Executable
         uses: actions/upload-artifact@v4
         with:
-          name: GUI-${{ matrix.os }}
+          name: Scale Report-${{ matrix.os }}
           path: dist/Scale Report*
 
   release:
@@ -64,13 +64,13 @@ jobs:
       - name: Download CLI Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: CLI-${{ matrix.os }}
+          name: ScaleReportCLI-${{ matrix.os }}
           path: ./artifacts
 
       - name: Download GUI Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: GUI-${{ matrix.os }}
+          name: Scale Report-${{ matrix.os }}
           path: ./artifacts
 
       # Step 2: Create or update a GitHub Release
