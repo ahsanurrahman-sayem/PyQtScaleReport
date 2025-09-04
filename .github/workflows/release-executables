@@ -66,4 +66,4 @@ jobs:
     files: release/*
     overwrite: true   # replaces existing assets by name
  env:
-  GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
