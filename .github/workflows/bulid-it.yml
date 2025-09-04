@@ -57,7 +57,6 @@ jobs:
           fi
 
 
-
       - name: Upload new assets to "executables" release
   uses: softprops/action-gh-release@v2
   with:
@@ -65,5 +64,5 @@ jobs:
     name: "Executables Release"
     files: release/*
     overwrite: true   # replaces existing assets by name
- env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+  env:
+   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
