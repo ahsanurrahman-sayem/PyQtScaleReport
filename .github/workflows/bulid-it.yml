@@ -28,13 +28,13 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pyqt5 fpdf2 tabulate pyinstaller
+          python -m pip install --verbose pyqt fpdf2 tabulate pyinstaller
           
       - name: Build CLI Executable
         run: pyinstaller --onefile --name "ScaleReportCLI" --add-data "fonts:fonts" --add-data "favicon.ico:." --icon favicon.ico __mainCLI__.py
       - name: Build GUI Executable
         run: |
-          pyinstaller --onefile --name "ScaleReportGUI" --add-data "fonts:fonts" add-data "favicon.ico:." --icon favicon.ico __mainQtGUI__.py
+          pyinstaller --onefile __mainQtGUI__.py --name "ScaleReportGUI" --add-data "fonts:fonts" add-data "favicon.ico:." --icon favicon.ico
 
       - name: Rename Artifacts with OS Suffix
         run: |
