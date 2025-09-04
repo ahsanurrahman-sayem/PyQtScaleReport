@@ -31,21 +31,10 @@ jobs:
           python -m pip install pyqt5 fpdf2 tabulate pyinstaller
           
       - name: Build CLI Executable
-        run: |
-          pyinstaller --onefile \
-          --name "ScaleReportCLI" \
-          --add-data "fonts:fonts" \
-          --add-data "favicon.ico:." \
-          --icon favicon.ico \
-          __mainCLI__.py     
+        run: pyinstaller --onefile --name "ScaleReportCLI" --add-data "fonts:fonts" --add-data "favicon.ico:." --icon favicon.ico __mainCLI__.py
       - name: Build GUI Executable
         run: |
-          pyinstaller --onefile \
-          --name "ScaleReportGUI" \
-          --add-data "fonts:fonts" \
-          --add-data "favicon.ico:." \
-          --icon favicon.ico \
-          __mainQtGUI__.py
+          pyinstaller --onefile --name "ScaleReportGUI" --add-data "fonts:fonts" add-data "favicon.ico:." --icon favicon.ico __mainQtGUI__.py
 
       - name: Rename Artifacts with OS Suffix
         run: |
