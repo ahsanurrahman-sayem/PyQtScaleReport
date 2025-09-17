@@ -1,1 +1,3 @@
-https://github.com/ahsanurrahman-sayem/PyQtScaleReport.git
+[![Build and Release Executables](https://github.com/ahsanurrahman-sayem/PyQtScaleReport/actions/workflows/bulid-it.yml/badge.svg?branch=main)](https://github.com/ahsanurrahman-sayem/PyQtScaleReport/actions/workflows/bulid-it.yml)
+
+My brain is fucked up and I dont have idea what to write here...
