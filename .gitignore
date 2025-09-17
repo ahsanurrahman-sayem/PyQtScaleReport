@@ -1,4 +1,5 @@
 # Ignore build directory
 /build
+/dist
 /__pycache__
 /ORIGIN.md

@@ -124,11 +124,13 @@ def getLastRowId():
 	cursor.execute("SELECT MAX(id) FROM weights")
 	result = cursor.fetchone()
 	conn.close()
-	return result[0] if result else None
+	return result[-1] if result else None
 
 def del_data(weight_id: int):
 	conn = getConnection()
 	cursor = conn.cursor()
 	cursor.execute("DELETE FROM weights WHERE id = ?", (weight_id,))
+	conn.commit()
+	cursor.execute("DELETE FROM sqlite_sequence WHERE name = ?", ("weights",))
 	conn.commit()
 	conn.close()

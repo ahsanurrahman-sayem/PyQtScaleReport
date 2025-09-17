@@ -31,22 +31,23 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 
 		self.create_tab = QtWidgets.QWidget()
 		
-		self.modify_tab = QtWidgets.QWidget()
-
 		self.view_tab = QtWidgets.QWidget()
+		self.modify_tab = QtWidgets.QWidget()
 		self.search_tab = QtWidgets.QWidget()
 
 		self.tabs.addTab(self.create_tab, "➕ Create New Weight Report")
-		self.tabs.addTab(self.modify_tab,"✏ Edit Weight By ID")
+		
 		self.tabs.addTab(self.view_tab, "📋 View All Weight Reports")
+		self.tabs.addTab(self.modify_tab,"✏ Edit Weight By ID")
 		self.tabs.addTab(self.search_tab, "🔍 Search Weight Report by ID")
 		
 
 
 		self.initCreateTab()
+		self.initViewTab()
 		self.createModifyTab()
 		self.initSearchTab()
-		self.initViewTab()
+		
 
 
 	def initCreateTab(self):
@@ -114,8 +115,8 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 	def initViewTab(self):
 		layout = QtWidgets.QVBoxLayout()
 		self.tree = QtWidgets.QTableWidget()
-		self.tree.setColumnCount(6)
-		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Operator"])
+		self.tree.setColumnCount(7)
+		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Load weight date","Unload weight date"])
 		self.tree.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 		self.tree.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 		self.tree.cellDoubleClicked.connect(self.view_pdf_by_id)
@@ -138,7 +139,8 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		return value.text.strip()
 
 	def focusNextEmptyEntry(self):
-		for entry in self.entries.values():
+		#print("Focus focusNextEmptyEntry method")
+		for entry in self.create_fields.values():
 			if entry.text().strip() == "":
 				entry.setFocus()
 				return
@@ -161,10 +163,12 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.modify_unload_entry.setText(str(int(data.unload_weight)))
 	def submit_entry(self):
 		try:
-			custom_id = getFieldValue("Id")
-			weight_id = weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
-			load_weight = str(isDigit(getFieldValue("Load Weight (kg)")))
-			unload_weight = str(isDigit(getFieldValue("Unload Weight (kg)")))
+			custom_id = self.getFieldValue("Id")
+			#weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
+			weight_id = int(custom_id) if custom_id.isdigit() else None
+			print(weight_id)
+			load_weight = str(isDigit(self.getFieldValue("Load Weight (kg)")))
+			unload_weight = str(isDigit(self.getFieldValue("Unload Weight (kg)")))
 
 			field_keys = {
 					"vehicle_no": "Vehicle No",
@@ -177,14 +181,14 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 					"contact": "Contact"
 				}
 			data = {
-				"operator": getFieldValue("Operator") or "Admin",
+				"operator": self.getFieldValue("Operator") or "Admin",
 				"load_weight": load_weight,
 				"load_weight_date": isZero(load_weight),
 				"unload_weight": unload_weight,
 				"unload_weight_date": isZero(unload_weight),
 				"net_weight": str(int(load_weight) - int(unload_weight)) or "0",
 				"party_type": "CLIENT",
-				**{key: getFieldValue(label) for key, label in field_keys.items()}
+				**{key: self.getFieldValue(label) for key, label in field_keys.items()}
 }
 
 			weight_obj = WeightData(id=weight_id,**data)
@@ -195,7 +199,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.load_data()
 			openFile(fp)
 		except Exception as e:
-			QtWidgets.QMessageBox.critical(self, "!!! --*-- Exception --*-- !!!\n"+str(e)+"\nPlease insert a uniqe Custom Weight Id which is't available in the database, or just do not insert any Id as the system will auto generate the ID itself.\nThanks for using the service!", str(e))
+			QtWidgets.QMessageBox.critical(self, "!!! --*-- Exception --*-- !!!",str(e)+"\nPlease insert a uniqe Custom Weight Id which is't available in the database, or just do not insert any Id as the system will auto generate the ID itself.\nThanks for using the service!")
 
 	def save_modified_weights(self):
 		try:
@@ -254,7 +258,8 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.tree.setItem(row_idx, 2, centerItem(item.vehicle_no))
 			self.tree.setItem(row_idx, 3, centerItem(str(item.load_weight)))
 			self.tree.setItem(row_idx, 4, centerItem(str(item.unload_weight)))
-			self.tree.setItem(row_idx, 5, centerItem(item.operator))
+			self.tree.setItem(row_idx, 5, centerItem(item.load_weight_date))
+			self.tree.setItem(row_idx, 6, centerItem(item.unload_weight_date))
 
 		# Optional: center-align headers too
 		header = self.tree.horizontalHeader()

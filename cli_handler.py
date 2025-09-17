@@ -32,7 +32,8 @@ def create_report():
 	try:
 		print("\n📝 Create New Weight Report")
 		custom_id = get_input("Enter Custom ID (optional): ")
-		weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
+		#weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
+		weight_id = int(custom_id) if custom_id.isdigit() else None
 		"""
 		if weight_id is getLastRowId():
 				print("variable 'custom_id' got - default last row id of database, need to auto increment.")
@@ -68,7 +69,7 @@ def create_report():
 			"load_weight_date": isZero(load_weight),
 			"unload_weight": unload_weight,
 			"unload_weight_date": isZero(unload_weight),
-				"net_weight": str(int(load_weight) - int(unload_weight)),
+			"net_weight": str(int(load_weight) - int(unload_weight)),
 			"party_type": "PARTY"
 		}
 
