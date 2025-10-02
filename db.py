@@ -52,7 +52,7 @@ def updateWeight(weight: WeightData):
 		UPDATE weights SET
 			load_weight = ?, load_weight_date = ?,
 			unload_weight = ?, unload_weight_date = ?,
-			net_weight = ?
+			net_weight = ?, client_name = ?, qty = ?
 		WHERE id = ?
 	""", (
 		weight.load_weight,
@@ -60,10 +60,33 @@ def updateWeight(weight: WeightData):
 		weight.unload_weight,
 		weight.unload_weight_date,
 		weight.net_weight,
+		weight.client_name,
+		weight.qty,
 		weight.id
 	))
 	conn.commit()
 	conn.close()
+
+def updateAndItem(id, item, value):
+	# whitelist valid column names to prevent SQL injection
+	valid_columns = {
+		"id","operator","vehicle_no","client_name","challan_no","driver",
+		"address","item_name","qty","contact","load_weight","load_weight_date",
+		"unload_weight","unload_weight_date","net_weight","party_type"
+	}
+
+	if item not in valid_columns:
+		raise ValueError(f"Invalid column name: {item}")
+
+	conn = getConnection()
+	cursor = conn.cursor()
+
+	# build SQL dynamically (only the column name part is f-stringed)
+	sql = f"UPDATE weights SET {item} = ? WHERE id = ?"
+	cursor.execute(sql, (value, id))
+	conn.commit()
+	conn.close()
+
 
 def addNewWeight(data: WeightData):
 	conn = getConnection()
