@@ -1,10 +1,32 @@
 import sqlite3
 from models import WeightData
+import os
+import shutil
+import sys
 
-DB_FILE = "weights.db"
+
+def inject(id:int,weight_id:int):
+	with getConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("""
+		UPDATE weights SET
+			id = ?
+		WHERE id = ?
+	""", (id,weight_id)
+	)
+		conn.commit()
+
+
+def getLocalDb():
+	base_dir = os.path.join(os.environ.get("ProgramData"),"ScaleReport")
+	if not os.path.exists(base_dir):
+		os.makedirs(base_dir, exist_ok = True)
+	return os.path.join(base_dir, "weights.db")
+
 
 def getConnection():
-	conn = sqlite3.connect(DB_FILE)
+	#conn = sqlite3.connect("weights.db")
+	conn = sqlite3.connect(getLocalDb())
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
@@ -24,8 +46,8 @@ def getConnection():
 		unload_weight_date TEXT,
 		net_weight TEXT,
 		party_type TEXT
+		)"""
 	)
-	""")
 	conn.commit()
 	return conn
 
@@ -33,6 +55,13 @@ def getAllWeights():
 	with getConnection() as conn:
 		cursor = conn.cursor()
 		cursor.execute("SELECT * FROM weights")
+		rows = cursor.fetchall()
+		return [WeightData(*row) for row in rows]
+
+def getAllWeightsOfRange(start_date, end_date):
+	with getConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("""SELECT * FROM weights WHERE (load_weight_date BETWEEN ? AND ?) OR (unload_weight_date BETWEEN ? AND ?)""", (start_date, end_date, start_date, end_date))
 		rows = cursor.fetchall()
 		return [WeightData(*row) for row in rows]
 
@@ -45,6 +74,7 @@ def getWeightById(weight_id):
 	if row:
 		return WeightData(*row)
 	return None
+
 def updateWeight(weight: WeightData):
 	conn = getConnection()
 	cursor = conn.cursor()
@@ -52,7 +82,7 @@ def updateWeight(weight: WeightData):
 		UPDATE weights SET
 			load_weight = ?, load_weight_date = ?,
 			unload_weight = ?, unload_weight_date = ?,
-			net_weight = ?
+			net_weight = ?, client_name = ?
 		WHERE id = ?
 	""", (
 		weight.load_weight,
@@ -60,6 +90,7 @@ def updateWeight(weight: WeightData):
 		weight.unload_weight,
 		weight.unload_weight_date,
 		weight.net_weight,
+		weight.client_name,
 		weight.id
 	))
 	conn.commit()
@@ -134,3 +165,9 @@ def del_data(weight_id: int):
 	cursor.execute("DELETE FROM sqlite_sequence WHERE name = ?", ("weights",))
 	conn.commit()
 	conn.close()
+
+if __name__ == '__main__':
+	pass
+	#1-del_data(which one to delete)
+	#2-inject(modifiction,where to modify)
+	

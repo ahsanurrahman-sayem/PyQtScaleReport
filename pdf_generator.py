@@ -131,7 +131,7 @@ class WeightReportPDF(FPDF):
 def generate_pdf(data, filename: str):
 	pdf = WeightReportPDF(data["operator"])
 	pdf.add_page()
-	pdf.reportTable(data)
+	pdf.reportTable(data) 	#ChatGPT version 
 	file_path = os.path.join(REPORT_DIR, filename)
 	pdf.output(file_path)
 	return file_path
