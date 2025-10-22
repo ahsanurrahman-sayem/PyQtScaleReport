@@ -1,5 +1,6 @@
 import sqlite3
 from models import WeightData
+<<<<<<< HEAD
 import os,platform
 
 def getSysDbPath():
@@ -21,6 +22,35 @@ def getDbPath():
 def getConnection():
 	#conn = sqlite3.connect("weights.db")
 	conn = sqlite3.connect(getSysDbPath())
+=======
+import os
+import shutil
+import sys
+
+
+def inject(id:int,weight_id:int):
+	with getConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("""
+		UPDATE weights SET
+			id = ?
+		WHERE id = ?
+	""", (id,weight_id)
+	)
+		conn.commit()
+
+
+def getLocalDb():
+	base_dir = os.path.join(os.environ.get("ProgramData"),"ScaleReport")
+	if not os.path.exists(base_dir):
+		os.makedirs(base_dir, exist_ok = True)
+	return os.path.join(base_dir, "weights.db")
+
+
+def getConnection():
+	#conn = sqlite3.connect("weights.db")
+	conn = sqlite3.connect(getLocalDb())
+>>>>>>> 6f4c4263ca7f017ce10b02c6542c8a65377bce89
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
@@ -69,7 +99,10 @@ def getWeightById(weight_id):
 		return WeightData(*row)
 	return None
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6f4c4263ca7f017ce10b02c6542c8a65377bce89
 def updateWeight(weight: WeightData):
 	conn = getConnection()
 	cursor = conn.cursor()
@@ -77,7 +110,11 @@ def updateWeight(weight: WeightData):
 		UPDATE weights SET
 			load_weight = ?, load_weight_date = ?,
 			unload_weight = ?, unload_weight_date = ?,
+<<<<<<< HEAD
+			net_weight = ?, client_name = ?
+=======
 			net_weight = ?, client_name = ?, qty = ?
+>>>>>>> 1e351f310de6b3f1c0defa3469e0c6e37a290709
 		WHERE id = ?
 	""", (
 		weight.load_weight,
@@ -86,7 +123,10 @@ def updateWeight(weight: WeightData):
 		weight.unload_weight_date,
 		weight.net_weight,
 		weight.client_name,
+<<<<<<< HEAD
+=======
 		weight.qty,
+>>>>>>> 1e351f310de6b3f1c0defa3469e0c6e37a290709
 		weight.id
 	))
 	conn.commit()
@@ -187,6 +227,7 @@ def getLastRowId():
 def del_data(weight_id: int):
 	with getConnection() as conn:
 	cursor = conn.cursor()
+<<<<<<< HEAD
 		cursor.execute("DELETE FROM weights WHERE id = ?", (weight_id,))
 		conn.commit()
 		cursor.execute("DELETE FROM sqlite_sequence WHERE name = ?", ("weights",))
@@ -195,3 +236,16 @@ def del_data(weight_id: int):
 
 if __name__ == '__main__':
 	pass
+=======
+	cursor.execute("DELETE FROM weights WHERE id = ?", (weight_id,))
+	conn.commit()
+	cursor.execute("DELETE FROM sqlite_sequence WHERE name = ?", ("weights",))
+	conn.commit()
+	conn.close()
+
+if __name__ == '__main__':
+	pass
+	#1-del_data(which one to delete)
+	#2-inject(modifiction,where to modify)
+	
+>>>>>>> 6f4c4263ca7f017ce10b02c6542c8a65377bce89

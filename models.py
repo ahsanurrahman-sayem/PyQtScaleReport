@@ -18,3 +18,4 @@ class WeightData:
 	unload_weight_date: str
 	net_weight: str
 	party_type: str = "CLIENT"
+	#t_time: str
