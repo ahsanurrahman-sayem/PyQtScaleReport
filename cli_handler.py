@@ -59,7 +59,7 @@ def create_report():
 		data = {
 			"operator": "Admin",
 			"vehicle_no": vehicle_no,
-			"client_name": client_name,
+			"client_name": client_name if client_name else "ANY",
 			"challan_no": challan_no,
 			"driver": driver,
 			"address": address,

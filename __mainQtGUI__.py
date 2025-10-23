@@ -36,7 +36,7 @@ class UserAuth(QtWidgets.QDialog):
 		self.completer = QtWidgets.QCompleter(self.operator_names)
 		self.user_pass_input = QtWidgets.QLineEdit(self)
 
-		self.user_name_input.setEditable(True)
+		self.user_name_input.setEditable(False)
 		self.user_name_input.addItems(self.operator_names)
 		self.user_name_input.setCurrentText("")
 		self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
@@ -54,7 +54,7 @@ class UserAuth(QtWidgets.QDialog):
 		self.user_name_input.setFixedHeight(40)
 		self.user_pass_input.setFixedHeight(40)
 		#self.submit_btn.setFixedSize(250,30)
-		self.root.addRow("Udser Name",self.user_name_input)
+		self.root.addRow("User Name",self.user_name_input)
 		self.root.addRow("Password",self.user_pass_input)
 		self.root.addRow(self.submit_btn)
 		self.user_pass_input.setFocus()
