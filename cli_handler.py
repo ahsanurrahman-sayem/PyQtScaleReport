@@ -30,7 +30,6 @@ def get_input(prompt):
 def isZero(value):
 	return "" if value == "0" else getNow()
 
-
 def create_report():
 	try:
 		print("\n📝 Create New Weight Report")
@@ -122,13 +121,9 @@ def view_a_report(weight_id:int):
 		data.vehicle_no,
 		data.load_weight,
 		data.unload_weight,
-<<<<<<< HEAD
 		data.net_weight,
 		data.load_weight_date,
-		data.unload_weight_date]
-=======
-		data.net_weight]]
->>>>>>> 9fe3714068639e98b63b44ffacfbde329c9f25fb
+		data.unload_weight_date]]
 
 	headers = ["ID", "Client", "Vehicle", "Load", "Unload", "Net","Load Date","Unload Date"]
 	print(f"\n📋 Weight Records:{data.id}")
@@ -148,35 +143,14 @@ def edit_report(weight_id: int):
 	client_name = get_input("New Client name:")
 	qty = get_input("New Quantity:")
 
-<<<<<<< HEAD
 	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
 	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
 
-<<<<<<< HEAD
-=======
-
-	data.load_weight = load_weight
->>>>>>> 9fe3714068639e98b63b44ffacfbde329c9f25fb
-	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()
-
-=======
 	data.id = id if id.isdigit() else data.id
-
-	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
-	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()\
-
-	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
->>>>>>> 7a8231e261335b9d1bf9d60774f0fe2902a9608a
-	data.unload_weight_date = data.unload_weight_date if data.unload_weight_date != "" else getNow()
-	
 	data.net_weight = str(int(data.load_weight) - int(data.unload_weight))
 	
 	data.client_name = client_name if client_name != "" else data.client_name
-<<<<<<< HEAD
-	data.qty = qty if qty.isdigit() else data.qty
-=======
 	data.qty = qty if qty.isdigit else data.qty
->>>>>>> 7a8231e261335b9d1bf9d60774f0fe2902a9608a
 
 	updateWeight(data)
 	print("✅ Weight data updated successfully.\nUpdated Weight Record...")
@@ -188,11 +162,7 @@ def delete_report(weight_id: int):
 	if not data:
 		print("⚠ No data found for that ID.")
 		return
-<<<<<<< HEAD
-	print(f"\nDeleting Record ID: {data.id}")
-=======
 	print(f"Deleting Record ID: {data.id}")
->>>>>>> 9fe3714068639e98b63b44ffacfbde329c9f25fb
 	view_a_report(data.id)
 	del_data(data.id)
 
