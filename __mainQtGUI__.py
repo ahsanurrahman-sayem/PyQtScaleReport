@@ -167,7 +167,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		]
 
 		vhcl_serial = ["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY"]
-		client_names = ["ROMJAN TRADERS","HAFIUR RHMNAN","AMIRATH LUBE","CITY LUBE","FOOD", "ANY"]
+		client_names = ["ROMJAN TRADERS","HAFIZUR RAHMAN","AMIRATH LUBE","CITY LUBE","FOOD", "ANY"]
 		operator_names = ["SOHEL", "RUBEL", "SAYEM"]
 		item_names = ["WOOD", "M/S. ROD","SOYABEAN","RICE","LUBRICANT","OIL","TAR","WHEAT","CORN","TEEN", "SCRAP", "HAY","PLASTIC","BUNDLE"]
 

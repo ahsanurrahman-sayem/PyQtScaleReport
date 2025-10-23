@@ -142,11 +142,13 @@ def edit_report(weight_id: int):
 	print(f"Editing Record ID: {data.id}")
 	view_a_report(data.id)
 
+	id = get_input("New id:")
 	load_weight = get_input("New Load Weight (kg): ")
 	unload_weight = get_input("New Unload Weight (kg): ")
 	client_name = get_input("New Client name:")
 	qty = get_input("New Quantity:")
 
+<<<<<<< HEAD
 	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
 	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
 
@@ -157,11 +159,24 @@ def edit_report(weight_id: int):
 >>>>>>> 9fe3714068639e98b63b44ffacfbde329c9f25fb
 	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()
 
+=======
+	data.id = id if id.isdigit() else data.id
+
+	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
+	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()\
+
+	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
+>>>>>>> 7a8231e261335b9d1bf9d60774f0fe2902a9608a
 	data.unload_weight_date = data.unload_weight_date if data.unload_weight_date != "" else getNow()
-	data.net_weight = str(int(load_weight) - int(unload_weight))
+	
+	data.net_weight = str(int(data.load_weight) - int(data.unload_weight))
 	
 	data.client_name = client_name if client_name != "" else data.client_name
+<<<<<<< HEAD
 	data.qty = qty if qty.isdigit() else data.qty
+=======
+	data.qty = qty if qty.isdigit else data.qty
+>>>>>>> 7a8231e261335b9d1bf9d60774f0fe2902a9608a
 
 	updateWeight(data)
 	print("✅ Weight data updated successfully.\nUpdated Weight Record...")
@@ -181,6 +196,14 @@ def delete_report(weight_id: int):
 	view_a_report(data.id)
 	del_data(data.id)
 
+def modify_id(weight_id: int,new_id:int):
+	data = getWeightById(weight_id)
+	if not data:
+		print("⚠ No data found for that ID.")
+		return
+	inject(data.id,new_id)
+	view_a_report(new_id)
+	
 def open_pdf(fp):
 	try:
 		if platform.system() == "Windows" or platform.system() == "nt":
