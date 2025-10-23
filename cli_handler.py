@@ -54,7 +54,7 @@ def create_report():
 		data = {
 			"operator": "Admin",
 			"vehicle_no": vehicle_no,
-			"client_name": client_name,
+			"client_name": client_name if client_name else "ANY",
 			"challan_no": challan_no,
 			"driver": driver,
 			"address": address,
@@ -117,14 +117,18 @@ def view_a_report(weight_id:int):
 		print("⚠ No data found for that ID.")
 		return
 	table = [
-		data.id,
+		[data.id,
 		data.client_name,
 		data.vehicle_no,
 		data.load_weight,
 		data.unload_weight,
+<<<<<<< HEAD
 		data.net_weight,
 		data.load_weight_date,
 		data.unload_weight_date]
+=======
+		data.net_weight]]
+>>>>>>> 9fe3714068639e98b63b44ffacfbde329c9f25fb
 
 	headers = ["ID", "Client", "Vehicle", "Load", "Unload", "Net","Load Date","Unload Date"]
 	print(f"\n📋 Weight Records:{data.id}")
@@ -146,6 +150,11 @@ def edit_report(weight_id: int):
 	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
 	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
 
+<<<<<<< HEAD
+=======
+
+	data.load_weight = load_weight
+>>>>>>> 9fe3714068639e98b63b44ffacfbde329c9f25fb
 	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()
 
 	data.unload_weight_date = data.unload_weight_date if data.unload_weight_date != "" else getNow()
@@ -164,7 +173,11 @@ def delete_report(weight_id: int):
 	if not data:
 		print("⚠ No data found for that ID.")
 		return
+<<<<<<< HEAD
 	print(f"\nDeleting Record ID: {data.id}")
+=======
+	print(f"Deleting Record ID: {data.id}")
+>>>>>>> 9fe3714068639e98b63b44ffacfbde329c9f25fb
 	view_a_report(data.id)
 	del_data(data.id)
 

@@ -3,13 +3,13 @@
 
 [Setup]
 AppName=Scale Report
-AppVersion=1.6.8
+AppVersion=1.7.5
 AppPublisher=Ahsanur Rahman
 DefaultDirName={pf}\Scale Report
 DefaultGroupName=Scale Report
 UninstallDisplayIcon={app}\Scale Report.exe
 OutputDir=dist
-OutputBaseFilename=ScaleReport_Installer
+OutputBaseFilename=Install Scale Report
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
