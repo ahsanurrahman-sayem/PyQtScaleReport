@@ -82,11 +82,7 @@ def updateWeight(weight: WeightData):
 		UPDATE weights SET
 			load_weight = ?, load_weight_date = ?,
 			unload_weight = ?, unload_weight_date = ?,
-<<<<<<< HEAD
-			net_weight = ?, client_name = ?
-=======
 			net_weight = ?, client_name = ?, qty = ?
->>>>>>> 1e351f310de6b3f1c0defa3469e0c6e37a290709
 		WHERE id = ?
 	""", (
 		weight.load_weight,
@@ -95,16 +91,13 @@ def updateWeight(weight: WeightData):
 		weight.unload_weight_date,
 		weight.net_weight,
 		weight.client_name,
-<<<<<<< HEAD
-=======
 		weight.qty,
->>>>>>> 1e351f310de6b3f1c0defa3469e0c6e37a290709
 		weight.id
 	))
 	conn.commit()
 	conn.close()
 
-def updateAndItem(id, item, value):
+def updateAnItem(id, item, value):
 	# whitelist valid column names to prevent SQL injection
 	valid_columns = {
 		"id","operator","vehicle_no","client_name","challan_no","driver",

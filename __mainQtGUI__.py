@@ -1,6 +1,12 @@
-from db import getWeightById, addNewWeight, getAllWeights, getAllWeightsOfRange, getLastRowId, updateWeight
 from models import WeightData
-
+from db import (
+	getWeightById, 
+	addNewWeight, 
+	getAllWeights, 
+	getAllWeightsOfRange, 
+	getLastRowId, 
+	updateWeight
+)
 from pdf_generator import generate_pdf
 from utils import getNow, openFile
 from validator import isZero, isDigit
@@ -21,26 +27,40 @@ class UserAuth(QtWidgets.QDialog):
 		self.setWindowIcon(QtGui.QIcon(ico_path))
 
 		self.setWindowTitle("User Authentication")
-		self.setFixedSize(300,150)
+		self.setFixedSize(350,250)
+
+		self.operator_names = ["SOHEL", "RUBEL", "SAYEM"]
+
 		self.root = QtWidgets.QFormLayout(self)
-		self.user_name_input = QtWidgets.QLineEdit(self)
+		self.user_name_input = QtWidgets.QComboBox(self)
+		self.completer = QtWidgets.QCompleter(self.operator_names)
 		self.user_pass_input = QtWidgets.QLineEdit(self)
 
-		self.user_name_input.setText("Sohel")
-		self.user_name_input.setReadOnly(True)
+		self.user_name_input.setEditable(True)
+		self.user_name_input.addItems(self.operator_names)
+		self.user_name_input.setCurrentText("")
+		self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+		self.user_name_input.setCompleter(self.completer)
+
+		#self.user_name_input.setText("Sohel")
+		#self.user_name_input.setReadOnly(True)
 		self.user_pass_input.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 		self.user_pass_input.setPlaceholderText("Enter Password...")
 		self.user_pass_input.returnPressed.connect(self.auth)
 
 		self.submit_btn = QtWidgets.QPushButton("Login")
 		self.submit_btn.clicked.connect(self.auth)
+
+		self.user_name_input.setFixedHeight(40)
+		self.user_pass_input.setFixedHeight(40)
+		#self.submit_btn.setFixedSize(250,30)
 		self.root.addRow("Udser Name",self.user_name_input)
 		self.root.addRow("Password",self.user_pass_input)
 		self.root.addRow(self.submit_btn)
 		self.user_pass_input.setFocus()
 
 	def auth(self):
-		if self.user_pass_input.text() == ("s" or "S"):
+		if self.user_name_input.currentText() in self.operator_names and self.user_pass_input.text() == "s":
 			self.accept()
 		else:
 			QtWidgets.QMessageBox.warning(self,"Credential missmatch","Please Login with the right password.")
@@ -146,10 +166,10 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			 "Contact", "Load Weight (kg)", "Unload Weight (kg)"
 		]
 
-		vhcl_serial = ["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY-"]
+		vhcl_serial = ["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY"]
 		client_names = ["ROMJAN TRADERS","HAFIUR RHMNAN","AMIRATH LUBE","CITY LUBE","FOOD", "ANY"]
 		operator_names = ["SOHEL", "RUBEL", "SAYEM"]
-		item_names = ["WOOD", "M/S. ROD","SOYABEAN","RICE","LUBRICANT","WHEAT","CORN","TEEN", "SCRAP", "HAY","PLASTIC","BUNDLE"]
+		item_names = ["WOOD", "M/S. ROD","SOYABEAN","RICE","LUBRICANT","OIL","TAR","WHEAT","CORN","TEEN", "SCRAP", "HAY","PLASTIC","BUNDLE"]
 
 		for label in labels:
 			if label in ["Operator", "Client Name", "Item Name","Vehicle No"]:
@@ -157,20 +177,25 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 				entry.setEditable(True)
 				if label == "Client Name":
 					completer_list = client_names
+					#entry.setPlaceholderText("Enter Client/Party name")
 				elif label == "Operator":
 					completer_list = operator_names
 				elif label == "Vehicle No":
 					completer_list = vhcl_serial
+					#entry.setPlaceholderText("Enter Vehicle number") "# Wont work due to Internal bug of pyqt5
 				else:
 					completer_list = item_names
 
 				completer = QtWidgets.QCompleter(completer_list)
 				entry.addItems(completer_list)
+
 				entry.setCurrentText("")
 				completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
 				entry.setCompleter(completer)
 			else:
 				entry = QtWidgets.QLineEdit()
+				if label == "Id":
+					entry.setReadOnly(True)
 				entry.returnPressed.connect(self.focusNextEmptyEntry) # Bind Enter key
 			
 			entry.setFixedWidth(250)
