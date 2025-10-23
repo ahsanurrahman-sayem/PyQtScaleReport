@@ -1,5 +1,28 @@
 import sqlite3
 from models import WeightData
+<<<<<<< HEAD
+import os,platform
+
+def getSysDbPath():
+	system = platform.system()
+	match system:
+		case 'Linux':
+			return "weights.db"
+		case 'Windows' or 'nt':
+			return getDbPath()
+		default:
+			return "weights.db"
+
+def getDbPath():
+	base_dir = os.path.join(os.environ.get("ProgramData"), "ScaleReport")
+    if not os.path.exists(base_dir):
+		os.makedirs(base_dir, exist_ok=True)
+	return os.path.join(base_dir, "weights.db")
+
+def getConnection():
+	#conn = sqlite3.connect("weights.db")
+	conn = sqlite3.connect(getSysDbPath())
+=======
 import os
 import shutil
 import sys
@@ -27,6 +50,7 @@ def getLocalDb():
 def getConnection():
 	#conn = sqlite3.connect("weights.db")
 	conn = sqlite3.connect(getLocalDb())
+>>>>>>> 6f4c4263ca7f017ce10b02c6542c8a65377bce89
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
@@ -75,6 +99,10 @@ def getWeightById(weight_id):
 		return WeightData(*row)
 	return None
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> 6f4c4263ca7f017ce10b02c6542c8a65377bce89
 def updateWeight(weight: WeightData):
 	conn = getConnection()
 	cursor = conn.cursor()
@@ -107,15 +135,25 @@ def updateAnItem(id, item, value):
 
 	if item not in valid_columns:
 		raise ValueError(f"Invalid column name: {item}")
-
-	conn = getConnection()
-	cursor = conn.cursor()
+	
+	with getConnection() as conn:
+		cursor = conn.cursor()
 
 	# build SQL dynamically (only the column name part is f-stringed)
-	sql = f"UPDATE weights SET {item} = ? WHERE id = ?"
-	cursor.execute(sql, (value, id))
-	conn.commit()
-	conn.close()
+		sql = f"UPDATE weights SET {item} = ? WHERE id = ?"
+		cursor.execute(sql, (value, id))
+		conn.commit()
+
+def inject(id:int,weight_id:int):
+	with getConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("""
+		UPDATE weights SET
+			id = ?
+		WHERE id = ?
+	""", (id,weight_id)
+	)
+		conn.commit()
 
 
 def addNewWeight(data: WeightData):
@@ -167,9 +205,9 @@ def addNewWeight(data: WeightData):
 		))
 		conn.commit()
 		weight_id = cursor.lastrowid
-
 	conn.close()
 	return weight_id
+
 
 def getLastRowId():
 	conn = getConnection()
@@ -180,8 +218,18 @@ def getLastRowId():
 	return result[-1] if result else None
 
 def del_data(weight_id: int):
-	conn = getConnection()
+	with getConnection() as conn:
 	cursor = conn.cursor()
+<<<<<<< HEAD
+		cursor.execute("DELETE FROM weights WHERE id = ?", (weight_id,))
+		conn.commit()
+		cursor.execute("DELETE FROM sqlite_sequence WHERE name = ?", ("weights",))
+		conn.commit()
+
+
+if __name__ == '__main__':
+	pass
+=======
 	cursor.execute("DELETE FROM weights WHERE id = ?", (weight_id,))
 	conn.commit()
 	cursor.execute("DELETE FROM sqlite_sequence WHERE name = ?", ("weights",))
@@ -193,3 +241,4 @@ if __name__ == '__main__':
 	#1-del_data(which one to delete)
 	#2-inject(modifiction,where to modify)
 	
+>>>>>>> 6f4c4263ca7f017ce10b02c6542c8a65377bce89
