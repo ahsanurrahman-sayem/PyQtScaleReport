@@ -85,11 +85,13 @@ def updateWeight(weight: WeightData):
 	cursor = conn.cursor()
 	cursor.execute("""
 		UPDATE weights SET
+			id = ?,
 			load_weight = ?, load_weight_date = ?,
 			unload_weight = ?, unload_weight_date = ?,
 			net_weight = ?, client_name = ?, qty = ?
 		WHERE id = ?
 	""", (
+		weight.id,
 		weight.load_weight,
 		weight.load_weight_date,
 		weight.unload_weight,
@@ -121,14 +123,14 @@ def updateAnItem(id, item, value):
 		cursor.execute(sql, (value, id))
 		conn.commit()
 
-def inject(id:int,weight_id:int):
+def inject(weight_id:int,new_id:int):
 	with getConnection() as conn:
 		cursor = conn.cursor()
 		cursor.execute("""
 		UPDATE weights SET
 			id = ?
 		WHERE id = ?
-	""", (id,weight_id)
+	""", (new_id,weight_id)
 	)
 		conn.commit()
 

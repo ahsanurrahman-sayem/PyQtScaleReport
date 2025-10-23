@@ -153,7 +153,7 @@ def edit_report(weight_id: int):
 	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
 	data.unload_weight_date = data.unload_weight_date if data.unload_weight_date != "" else getNow()
 	
-	data.net_weight = str(int(load_weight) - int(unload_weight))
+	data.net_weight = str(int(data.load_weight) - int(data.unload_weight))
 	
 	data.client_name = client_name if client_name != "" else data.client_name
 	data.qty = qty if qty.isdigit else data.qty
@@ -172,6 +172,14 @@ def delete_report(weight_id: int):
 	view_a_report(data.id)
 	del_data(data.id)
 
+def modify_id(weight_id: int,new_id:int):
+	data = getWeightById(weight_id)
+	if not data:
+		print("⚠ No data found for that ID.")
+		return
+	inject(data.id,new_id)
+	view_a_report(new_id)
+	
 def open_pdf(fp):
 	try:
 		if platform.system() == "Windows" or platform.system() == "nt":

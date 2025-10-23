@@ -1,9 +1,10 @@
 from os import system as sys
 import argparse
-from cli_handler import create_report, search_report, view_all_reports, edit_report, delete_report
+from cli_handler import create_report, search_report, view_all_reports,view_a_report, edit_report, modify_id, delete_report
 
 def cl():
 	sys("clear")
+	sys("clrscr")
 
 def main():
 	catList={
@@ -12,6 +13,7 @@ def main():
 		'3':"3. View all reports",
 		'4':"4. Edit a report",
 		'5':"5. Delete a report",
+		'6':"6. Modify id of a report",
 		'0':"0. Exit",
 	}
 
@@ -60,6 +62,11 @@ def main():
 				if report_id.isdigit():
 					delete_report(int(report_id))
 					view_all_reports()
+			elif choice == '6':
+				report_id = input("Enter current id:")
+				new_id = input("Enter modified id:")
+				if report_id.isdigit():
+					modify_id(report_id,new_id)
 			elif choice == '0':
 				break
 			else:
