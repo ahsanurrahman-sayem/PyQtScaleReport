@@ -12,6 +12,8 @@ from db import (
 	del_data,
 	inject
 )
+from validator import isZero
+
 from models import WeightData
 from pdf_generator import generate_pdf
 from utils import getNow
@@ -35,13 +37,6 @@ def create_report():
 		custom_id = get_input("Enter Custom ID (optional): ")
 		#weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
 		weight_id = int(custom_id) if custom_id.isdigit() else None
-		"""
-		if weight_id is getLastRowId():
-				print("variable 'custom_id' got - default last row id of database, need to auto increment.")
-		else:
-			print("variable 'weight_id' got custom weight id, creating custom report")
-		"""
-
 		vehicle_no = get_input("Vehicle No: ")
 		client_name = get_input("Client Name: ")
 		challan_no = get_input("Challan/LC No: ")
@@ -90,7 +85,6 @@ def search_report(weight_id: int):
 	if not data:
 		print("⚠ No data found for that ID.")
 		return
-
 	filename = f"{data.client_name}_weight_report_{data.id}.pdf"
 	fp = generate_pdf(data.__dict__, filename)
 	open_pdf(fp)
@@ -108,14 +102,16 @@ def view_all_reports():
 		item.vehicle_no,
 		item.load_weight,
 		item.unload_weight,
-		item.net_weight
+		item.net_weight,
+		item.load_weight_date,
+		item.unload_weight_date
 	] for item in records]
-	headers = ["ID", "Client", "Vehicle", "Load Weight", "Unload Weight", "Net Weight"]
+	headers = ["ID", "Client", "Vehicle", "Load Weight", "Unload Weight", "Net Weight","Load Date","Unload Date"]
+	
 	print("\n📋 All Weight Records:\n")
 	print(tabulate(table, headers, tablefmt="grid"))
 
 def view_a_report(weight_id:int):
-<<<<<<< HEAD
 	data = getWeightById(weight_id)
 	if not data:
 		print("⚠ No data found for that ID.")
@@ -126,26 +122,12 @@ def view_a_report(weight_id:int):
 		data.vehicle_no,
 		data.load_weight,
 		data.unload_weight,
-		data.net_weight]
+		data.net_weight,
+		data.load_weight_date,
+		data.unload_weight_date]
 
-	headers = ["ID", "Client", "Vehicle", "Load", "Unload", "Net"]
+	headers = ["ID", "Client", "Vehicle", "Load", "Unload", "Net","Load Date","Unload Date"]
 	print(f"\n📋 Weight Records:{data.id}")
-=======
-	record = getWeightById(weight_id)
-	if not record:
-		print("⚠ No record found.")
-		return
-	table = [[
-		record.id,
-		record.client_name,
-		record.vehicle_no,
-		record.load_weight,
-		record.unload_weight,
-		record.net_weight
-	]]
-	headers = ["ID", "Client", "Vehicle", "Load Weight", "Unload Weight", "Net Weight"]
-	print("\n📋 Weight Report:")
->>>>>>> 1e351f310de6b3f1c0defa3469e0c6e37a290709
 	print(tabulate(table, headers, tablefmt="grid"))
 
 def edit_report(weight_id: int):
@@ -153,23 +135,6 @@ def edit_report(weight_id: int):
 	if not data:
 		print("⚠ No data found for that ID.")
 		return
-	"""
-	print(f"Current Load Weight: {data.load_weight}")
-	print(f"Current Unload Weight: {data.unload_weight}")
-<<<<<<< HEAD
-	print(f"Current Client Name:{data.client_name}\n")
-
-	load_weight = get_input("New Load Weight (kg): ")
-	unload_weight = get_input("New Unload Weight (kg): ")
-	client_name = get_input("New Client Name: ")
-
-	load_weight = load_weight if load_weight.isdigit() else "0"
-	unload_weight = unload_weight if unload_weight.isdigit() else "0"
-	data.client_name = client_name if client_name != "" else data.client_name
-=======
-	print(f"Client Name: {data.client_name}")
-	print(f"Quantity: {data.qty}")
-	"""
 	print(f"Editing Record ID: {data.id}")
 	view_a_report(data.id)
 
@@ -178,18 +143,16 @@ def edit_report(weight_id: int):
 	client_name = get_input("New Client name:")
 	qty = get_input("New Quantity:")
 
-	load_weight = load_weight if load_weight.isdigit() else data.load_weight
-	unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
+	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
+	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
 
->>>>>>> 1e351f310de6b3f1c0defa3469e0c6e37a290709
-	data.load_weight = load_weight
 	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()
-	data.unload_weight = unload_weight
+
 	data.unload_weight_date = data.unload_weight_date if data.unload_weight_date != "" else getNow()
 	data.net_weight = str(int(load_weight) - int(unload_weight))
 	
 	data.client_name = client_name if client_name != "" else data.client_name
-	data.qty = qty if qty != "" else data.qty
+	data.qty = qty if qty.isdigit() else data.qty
 
 	updateWeight(data)
 	print("✅ Weight data updated successfully.\nUpdated Weight Record...")
@@ -201,15 +164,7 @@ def delete_report(weight_id: int):
 	if not data:
 		print("⚠ No data found for that ID.")
 		return
-<<<<<<< HEAD
-	print(f"Deleting Record ID: {data.id}")
-=======
-	"""
->>>>>>> 1e351f310de6b3f1c0defa3469e0c6e37a290709
-	print(f"Current Load Weight: {data.load_weight}")
-	print(f"Current Unload Weight: {data.unload_weight}")
-	"""
-	print(f"\Deleting Record ID: {data.id}")
+	print(f"\nDeleting Record ID: {data.id}")
 	view_a_report(data.id)
 	del_data(data.id)
 
