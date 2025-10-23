@@ -139,23 +139,24 @@ def edit_report(weight_id: int):
 	print(f"Editing Record ID: {data.id}")
 	view_a_report(data.id)
 
+	id = get_input("New id:")
 	load_weight = get_input("New Load Weight (kg): ")
 	unload_weight = get_input("New Unload Weight (kg): ")
 	client_name = get_input("New Client name:")
 	qty = get_input("New Quantity:")
 
-	load_weight = load_weight if load_weight.isdigit() else data.load_weight
-	unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
+	data.id = id if id.isdigit() else data.id
 
+	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
+	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()\
 
-	data.load_weight = load_weight
-	data.load_weight_date = data.load_weight_date if data.load_weight_date != "" else getNow()
-	data.unload_weight = unload_weight
+	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
 	data.unload_weight_date = data.unload_weight_date if data.unload_weight_date != "" else getNow()
+	
 	data.net_weight = str(int(load_weight) - int(unload_weight))
 	
 	data.client_name = client_name if client_name != "" else data.client_name
-	data.qty = qty if qty != "" else data.qty
+	data.qty = qty if qty.isdigit else data.qty
 
 	updateWeight(data)
 	print("✅ Weight data updated successfully.\nUpdated Weight Record...")
