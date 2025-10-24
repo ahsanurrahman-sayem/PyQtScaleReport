@@ -177,7 +177,7 @@ def addNewWeight(data: WeightData):
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
 		""", (
 			data.operator, data.vehicle_no, data.client_name, data.challan_no, data.driver,
-			data.address, data.item_name, data.qty, data.contact,
+			data.address, data.item_name, str(int(data.qty)) if data.qty.isdigit() else "" , data.contact,
 			data.load_weight, data.load_weight_date,
 			data.unload_weight, data.unload_weight_date, data.net_weight,
 			data.party_type

@@ -410,9 +410,9 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.tree.setItem(row_idx, 0, centerItem(str(item.id)))
 			self.tree.setItem(row_idx, 1, centerItem(item.client_name))
 			self.tree.setItem(row_idx, 2, centerItem(item.vehicle_no))
-			self.tree.setItem(row_idx, 3, centerItem(str(item.load_weight)))
-			self.tree.setItem(row_idx, 4, centerItem(str(item.unload_weight)))
-			self.tree.setItem(row_idx, 5, centerItem(str(item.net_weight)))
+			self.tree.setItem(row_idx, 3, centerItem(str(int(item.load_weight))))
+			self.tree.setItem(row_idx, 4, centerItem(str(int(item.unload_weight))))
+			self.tree.setItem(row_idx, 5, centerItem(str(int(item.net_weight))))
 			self.tree.setItem(row_idx, 6, centerItem(item.load_weight_date))
 			self.tree.setItem(row_idx, 7, centerItem(item.unload_weight_date))
 
