@@ -10,11 +10,16 @@ from db import (
 	getLastRowId,
 	updateWeight,
 	del_data,
-	inject
+	inject,
+	addUser,
+	addItem,
+	getUsers,
+	getItems
 )
 from validator import isZero
 
-from models import WeightData
+from models import WeightData,User,Item
+
 from pdf_generator import generate_pdf
 from utils import getNow
 
@@ -173,7 +178,46 @@ def modify_id(weight_id: int,new_id:int):
 		return
 	inject(data.id,new_id)
 	view_a_report(new_id)
+
+
+def add_item():
+	item = get_input("Enter Item Name: ")
+	if item:
+		addItem(Item(name=item))
+	else:
+		pass
+
+def view_items():
+	items = getItems()
+	if items:
+		table = [[
+			item.name,
+		] for item in items]
+		headers = ["Item Name"]
+		print("\n📋 All Items's:\n")
+		print(tabulate(table, headers, tablefmt="grid"))
+		
+def add_user():
+	u_name: str = get_input("Enter new user name ")
+	password: str = get_input(f"Enter {u_name}'s password: ")
+	if u_name and password:
+		addUser(User(name=u_name,password=password))
+	else:
+		pass
+
+def view_users():
+	items = getItems()
+	if items:
+		table = [[
+			item.name,
+			item.password
+		] for item in items]
+		headers = ["User","Password"]
 	
+		print("\n📋 All User's:\n")
+		print(tabulate(table, headers, tablefmt="grid"))
+
+
 def open_pdf(fp):
 	try:
 		if platform.system() == "Windows" or platform.system() == "nt":

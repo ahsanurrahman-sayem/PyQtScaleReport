@@ -1,5 +1,5 @@
 import sqlite3
-from models import WeightData
+from models import WeightData, User, Item
 import os,platform
 
 def getSysDbPath():
@@ -204,6 +204,70 @@ def del_data(weight_id: int):
 		cursor.execute("DELETE FROM sqlite_sequence WHERE name = ?", ("weights",))
 		conn.commit()
 
+def getUserConnection():
+	with sqlite3.connect(getSysDbPath()) as conn:
+		cursor = conn.cursor()
+		cursor.execute("""
+		CREATE TABLE IF NOT EXISTS users (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT,
+			password TEXT
+			)"""
+		)
+		conn.commit()
+		return conn
+
+def addUser(user: User):
+	with getUserConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("""
+			INSERT INTO users (
+			name,
+			password 
+			) VALUES (?, ?)""",(
+				data.name,
+				data.password
+			)
+		)
+		conn.commit()
+		return cursor.lastrowid
+
+def getUsers():
+	with getConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("SELECT * FROM users")
+		rows = cursor.fetchall()
+		return [User(*row) for row in rows]
+
+def getSysDatasConnection():
+	with sqlite3.connect(getSysDbPath()) as conn:
+		cursor = conn.cursor()
+		cursor.execute("""
+		CREATE TABLE IF NOT EXISTS items (
+			name TEXT,
+			)"""
+		)
+		conn.commit()
+		return conn
+
+def addItem(item: Item):
+	with getSysDatasConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("""
+			INSERT INTO items (
+			name
+			) VALUES (?)""",(
+				item.name,
+			)
+		)
+		conn.commit()
+
+def getItems():
+	with getSysDatasConnection() as conn:
+		cursor = conn.cursor()
+		cursor.execute("SELECT * FROM items")
+		rows = cursor.fetchall()
+		return [Item(*row) for row in rows]
 
 if __name__ == '__main__':
 	pass

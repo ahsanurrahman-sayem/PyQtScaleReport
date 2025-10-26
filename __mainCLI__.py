@@ -1,6 +1,6 @@
 from os import system as sys
 import argparse
-from cli_handler import create_report, search_report, view_all_reports,view_a_report, edit_report, modify_id, delete_report
+from cli_handler import create_report, search_report, view_all_reports,view_a_report, add_item,view_items, add_user, view_users, edit_report, modify_id, delete_report
 
 def cl():
 	sys("clear")
@@ -14,6 +14,10 @@ def main():
 		'4':"4. Edit a report",
 		'5':"5. Delete a report",
 		'6':"6. Modify id of a report",
+		'7':"7. Add item",
+		'8':"8. View items",
+		'9':"9. Add User",
+		'10':"10.View Users",
 		'0':"0. Exit",
 	}
 
@@ -67,6 +71,14 @@ def main():
 				new_id = input("Enter modified id:")
 				if report_id.isdigit():
 					modify_id(report_id,new_id)
+			elif choice == '7':
+				add_item()
+			elif choice == '8':
+				view_items()
+			elif choice == '9':
+				add_user()
+			elif choice == '10':
+				view_users()
 			elif choice == '0':
 				break
 			else:

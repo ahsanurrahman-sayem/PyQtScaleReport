@@ -19,3 +19,13 @@ class WeightData:
 	net_weight: str
 	party_type: str = "CLIENT"
 	#t_time: str
+
+@dataclass
+class User:
+	id: int
+	name: str
+	password: str
+
+@dataclass
+class Item:
+	name: str
