@@ -8,7 +8,6 @@ from db import (
 	updateWeight,
 	getUsers,
 	getItems,
-	getDatasFromTable,
 	ARSTable
 )
 import models
@@ -34,8 +33,8 @@ class UserAuth(QtWidgets.QDialog):
 		self.setWindowTitle("User Authentication")
 		self.setFixedSize(350,250)
 
-		self.operators = [[user.name,user.password] for user in ARSTable("users",models.User).getDatasFromTable()]
-		print(self.operators)
+		self.operators = [[user.name,user.password] for user in ARSTable("users",models.User).getDatas()]
+		#print(self.operators)
 		self.operator_names = [operator[0] for operator in self.operators]
 
 		self.root = QtWidgets.QFormLayout(self)
@@ -65,6 +64,7 @@ class UserAuth(QtWidgets.QDialog):
 
 	def auth(self):
 		if self.user_name_input.currentText() in self.operator_names and self.user_pass_input.text() in [operator[1] for operator in self.operators]:
+			self.loged_user = self.user_name_input.currentText()
 			self.accept()
 		else:
 			QtWidgets.QMessageBox.warning(self,"Credential missmatch","Please Login with the right password.")
@@ -72,14 +72,14 @@ class UserAuth(QtWidgets.QDialog):
 
 
 class ScaleReportApp(QtWidgets.QMainWindow):
-	def __init__(self):
+	def __init__(self,user_name):
 		super().__init__()
 		self.setWindowTitle("Scale Weight Report")
 		if getattr(sys, 'frozen', False):
 			ico_path = os.path.join(sys._MEIPASS, "favicon.ico")
 		else:
 			ico_path = "favicon.ico"
-
+		self.current_user = user_name
 		self.setWindowIcon(QtGui.QIcon(ico_path))
 		self.setGeometry(100, 100, 1150, 390)
 		self.initUI()
@@ -170,9 +170,6 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			 "Contact", "Load Weight (kg)", "Unload Weight (kg)"
 		]
 
-		vhcl_serial = ["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY"]
-		#[vehicle.name for vehicle in [Vehicle(vhcl[0]) for vhcl in getDatasFromTable("vehicles")]]
-		print(vhcl_serial) #["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY"]
 		client_names = ["ROMJAN TRADERS","HAFIZUR RAHMAN","AMIRATH LUBE","CITY LUBE","FOOD", "ANY"]
 		operator_names = ["SOHEL", "RUBEL", "SAYEM"]
 		item_names = ["WOOD", "M/S. ROD","SOYABEAN","RICE","LUBRICANT","OIL","TAR","WHEAT","CORN","TEEN", "SCRAP", "HAY","PLASTIC","BUNDLE"]
@@ -182,15 +179,20 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 				entry = QtWidgets.QComboBox()
 				entry.setEditable(True)
 				if label == "Client Name":
-					completer_list = client_names
+					completer_list = [client.name for client in ARSTable("clients",models.Client).getDatas()]
 					#entry.setPlaceholderText("Enter Client/Party name")
 				elif label == "Operator":
-					completer_list = operator_names
+					completer_list = [self.current_user]
+					entry.setCurrentText(self.current_user)
+					entry.setEditable(False)
+					#[client.name for client in ARSTable("client",models.Client).getDatas()]
 				elif label == "Vehicle No":
-					completer_list = vhcl_serial
+					completer_list = [vehicle.serial for vehicle in ARSTable("vehicle_serials",models.VehicleSerial).getDatas()]
 					#entry.setPlaceholderText("Enter Vehicle number") "# Wont work due to Internal bug of pyqt5
+				elif label == "Item Name":
+					completer_list = [item.name for item in ARSTable("items",models.Item).getDatas()]
 				else:
-					completer_list = item_names
+					pass
 
 				completer = QtWidgets.QCompleter(completer_list)
 				entry.addItems(completer_list)
@@ -200,7 +202,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 				entry.setCompleter(completer)
 			else:
 				entry = QtWidgets.QLineEdit()
-				if label == "Id":
+				if label in ["Id"]:
 					entry.setReadOnly(True)
 				entry.returnPressed.connect(self.focusNextEmptyEntry) # Bind Enter key
 			
@@ -259,7 +261,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		layout = QtWidgets.QVBoxLayout()
 		self.tree = QtWidgets.QTableWidget()
 		self.tree.setColumnCount(8)
-		#self.tree.setRowCount(2)
+		self.tree.setRowCount(2)
 		self.tree.setWordWrap(True)
 		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date"])
 		self.tree.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -273,6 +275,35 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		layout.addWidget(refresh_btn)
 		self.view_tab.setLayout(layout)
 		self.load_data()
+
+	def load_data(self):
+		weights = getAllWeights()
+
+		def centerItem(text):
+			item = QtWidgets.QTableWidgetItem(text)
+			item.setTextAlignment(QtCore.Qt.AlignCenter)
+			return item
+
+		for row_idx, item in enumerate(weights[::-1]):
+			self.tree.insertRow(row_idx)
+			self.tree.setItem(row_idx, 0, centerItem(str(item.id)))
+			self.tree.setItem(row_idx, 1, centerItem(item.client_name))
+			self.tree.setItem(row_idx, 2, centerItem(item.vehicle_no))
+			self.tree.setItem(row_idx, 3, centerItem(str(int(item.load_weight))))
+			self.tree.setItem(row_idx, 4, centerItem(str(int(item.unload_weight))))
+			self.tree.setItem(row_idx, 5, centerItem(str(int(item.net_weight))))
+			self.tree.setItem(row_idx, 6, centerItem(item.load_weight_date))
+			self.tree.setItem(row_idx, 7, centerItem(item.unload_weight_date))
+
+		# Optional: center-align headers too
+		header = self.tree.horizontalHeader()
+		for i in range(self.tree.columnCount()):
+			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+			self.tree.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignCenter)
+		self.tree.resizeRowsToContents()
+		#self.tree.resizeColumnsToContents()
+
+
 
 	def getFieldValue(self,value):
 	#return the value from QtEntryField Object
@@ -349,15 +380,17 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 				"client_name": client_name,
 				**{key: self.getFieldValue(label) for key, label in field_keys.items()}
 			}
+			if load_weight == "0" and unload_weight == "0":
+				QMessageBox.critical(self, "Error", "No Weight found.")
+			else:
+				weight_obj = WeightData(id=weight_id,**data)
 
-			weight_obj = WeightData(id=weight_id,**data)
-
-			data["id"]=addNewWeight(weight_obj)
-			fp = generate_pdf(data, f"{data['client_name']}_weight_report_{data['id']}.pdf")
-			
-			self.load_data()
-			self.clearFields()
-			openFile(fp)
+				data["id"]=addNewWeight(weight_obj)
+				fp = generate_pdf(data, f"{data['client_name']}_weight_report_{data['id']}.pdf")
+				
+				self.load_data()
+				self.clearFields()
+				openFile(fp)
 		except Exception as e:
 			print(e)
 			QtWidgets.QMessageBox.critical(self, "!!! --*-- Exception --*-- !!!",str(e))
@@ -407,34 +440,6 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		fp = generate_pdf(data.__dict__, filename)
 		openFile(fp)
 
-	def load_data(self):
-		self.tree.setRowCount(1)
-		weights = getAllWeights()
-
-		def centerItem(text):
-			item = QtWidgets.QTableWidgetItem(text)
-			item.setTextAlignment(QtCore.Qt.AlignCenter)
-			return item
-
-		for row_idx, item in enumerate(weights[::-1]):
-			self.tree.insertRow(row_idx)
-			self.tree.setItem(row_idx, 0, centerItem(str(item.id)))
-			self.tree.setItem(row_idx, 1, centerItem(item.client_name))
-			self.tree.setItem(row_idx, 2, centerItem(item.vehicle_no))
-			self.tree.setItem(row_idx, 3, centerItem(str(int(item.load_weight))))
-			self.tree.setItem(row_idx, 4, centerItem(str(int(item.unload_weight))))
-			self.tree.setItem(row_idx, 5, centerItem(str(int(item.net_weight))))
-			self.tree.setItem(row_idx, 6, centerItem(item.load_weight_date))
-			self.tree.setItem(row_idx, 7, centerItem(item.unload_weight_date))
-
-		# Optional: center-align headers too
-		header = self.tree.horizontalHeader()
-		for i in range(self.tree.columnCount()):
-			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-			self.tree.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignCenter)
-		self.tree.resizeRowsToContents()
-		self.tree.resizeColumnsToContents()
-
 	def view_pdf_by_id(self, row, _):
 		weight_id = self.tree.item(row, 0).text()
 		data = getWeightById(int(weight_id))
@@ -460,6 +465,6 @@ if __name__ == "__main__":
 			font_family = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
 			app_font = QtGui.QFont(font_family,10)
 			app.setFont(app_font)
-			window = ScaleReportApp()
+			window = ScaleReportApp(login.loged_user)
 			window.show()
 			sys.exit(app.exec_())

@@ -3,6 +3,7 @@ from dataclasses import fields, is_dataclass
 from models import WeightData, User, Item
 import os,platform
 
+
 def getSysDbPath(cwd=None):
 	system = platform.system()
 	match system:
@@ -35,7 +36,7 @@ def inject(id:int,weight_id:int):
 
 
 def getConnection():
-	conn = sqlite3.connect(getSysDbPath(cwd=True))
+	conn = sqlite3.connect(getSysDbPath(cwd=False))
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
@@ -248,6 +249,7 @@ def getSysDatasConnection():
 		cursor = conn.cursor()
 		cursor.execute("""
 		CREATE TABLE IF NOT EXISTS items (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT
 			)"""
 		)
@@ -271,18 +273,20 @@ def getItems():
 		cursor = conn.cursor()
 		cursor.execute("SELECT * FROM items")
 		rows = cursor.fetchall()
-		return [Item(*row) for row in rows]
+		cursor.close()
+		#return [Item(*row) for row in rows]
+		return rows
 
 #()
 
-import sqlite3
-from dataclasses import fields, is_dataclass
+
 
 class ARSTable:
 	def __init__(self, table: str, model, unique_fields=None):
 		self.table: str = table
 		self.model = model
-		self.unique_fields = unique_fields or []	# fields that must be unique
+		self.unique_fields = unique_fields or [] # fields that must be unique
+		self.createTable()
 
 	def _mapPythonTypeToSQLite(self, py_type):
 		type_map = {
@@ -366,6 +370,11 @@ class ARSTable:
 			cursor.execute(f"DELETE FROM {self.table}")
 			conn.commit()
 			cursor.close()
+
+	def delTable(self):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			conn.execute(f"DROP TABLE IF EXISTS {self.table}")
+			conn.commit()
 
 
 if __name__ == '__main__':

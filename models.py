@@ -27,7 +27,7 @@ class User:
 
 @dataclass
 class Item:
-	id: int
+	#id: int
 	name: str
 
 @dataclass
