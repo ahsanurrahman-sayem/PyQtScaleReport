@@ -18,7 +18,6 @@ class WeightData:
 	unload_weight_date: str
 	net_weight: str
 	party_type: str = "CLIENT"
-	#t_time: str
 
 @dataclass
 class User:
@@ -28,4 +27,20 @@ class User:
 
 @dataclass
 class Item:
+	id: int
 	name: str
+
+@dataclass
+class Client:
+	id: int
+	name: str
+
+@dataclass
+class Vehicle:
+	id: int
+	name: str
+
+@dataclass
+class VehicleSerial:
+	id: int
+	serial: str

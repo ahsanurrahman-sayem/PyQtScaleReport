@@ -1,10 +1,11 @@
-from os import system as sys
+from os import system
 import argparse
-from cli_handler import create_report, search_report, view_all_reports,view_a_report, add_item,view_items, add_user, view_users, edit_report, modify_id, delete_report
+from cli_handler import create_report, search_report, view_all_reports,view_a_report, add_items, view_items, add_user, view_users, edit_report, modify_id, delete_report
 
 def cl():
-	sys("clear")
-	sys("clrscr")
+	pass
+	#system("Clear-Host")
+	#sys("clrscr")
 
 def main():
 	catList={
@@ -40,7 +41,7 @@ def main():
 	elif args.edit is not None:
 		edit_report(args.edit)
 	elif args.delete is not None:
-		delete_report(args.edit)
+		delete_report(args.delete)
 	else:
 		while True:
 			print("\n=== Scale Report CLI Menu ===")
@@ -72,7 +73,7 @@ def main():
 				if report_id.isdigit():
 					modify_id(report_id,new_id)
 			elif choice == '7':
-				add_item()
+				add_items()
 			elif choice == '8':
 				view_items()
 			elif choice == '9':

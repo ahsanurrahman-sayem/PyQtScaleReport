@@ -39,7 +39,6 @@ def create_report():
 	try:
 		print("\n📝 Create New Weight Report")
 		custom_id = get_input("Enter Custom ID (optional): ")
-		#weight_id = int(custom_id) if custom_id.isdigit() and custom_id != getLastRowId() else None #or i could pass getLastRowId()
 		weight_id = int(custom_id) if custom_id.isdigit() else None
 		vehicle_no = get_input("Vehicle No: ")
 		client_name = get_input("Client Name: ")
@@ -180,12 +179,13 @@ def modify_id(weight_id: int,new_id:int):
 	view_a_report(new_id)
 
 
-def add_item():
-	item = get_input("Enter Item Name: ")
-	if item:
-		addItem(Item(name=item))
-	else:
-		pass
+def add_items():
+	while True:
+		item = get_input("Enter Item Name: ")
+		if item:
+			addItem(Item(name=item))
+		else:
+			return
 
 def view_items():
 	items = getItems()
@@ -196,26 +196,30 @@ def view_items():
 		headers = ["Item Name"]
 		print("\n📋 All Items's:\n")
 		print(tabulate(table, headers, tablefmt="grid"))
+	else:
+		print(f"Items:{items}")
 		
 def add_user():
 	u_name: str = get_input("Enter new user name ")
 	password: str = get_input(f"Enter {u_name}'s password: ")
 	if u_name and password:
-		addUser(User(name=u_name,password=password))
+		addUser(User(id=None,name=u_name,password=password))
 	else:
 		pass
 
 def view_users():
-	items = getItems()
-	if items:
+	users = getUsers()
+	if users:
 		table = [[
-			item.name,
-			item.password
-		] for item in items]
+			user.name,
+			user.password
+		] for user in users]
 		headers = ["User","Password"]
 	
 		print("\n📋 All User's:\n")
 		print(tabulate(table, headers, tablefmt="grid"))
+	else:
+		print(f"Users:{users}")
 
 
 def open_pdf(fp):

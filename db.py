@@ -2,13 +2,16 @@ import sqlite3
 from models import WeightData, User, Item
 import os,platform
 
-def getSysDbPath():
+def getSysDbPath(cwd=None):
 	system = platform.system()
 	match system:
 		case 'Linux':
 			return "weights.db"
 		case 'Windows':
-			return getDbPath()
+			if cwd:
+				return "weights.db"
+			else:
+				return getDbPath()
 		case _:
 			return "weights.db"
 
@@ -31,7 +34,7 @@ def inject(id:int,weight_id:int):
 
 
 def getConnection():
-	conn = sqlite3.connect(getSysDbPath())
+	conn = sqlite3.connect(getSysDbPath(cwd=True))
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
@@ -225,15 +228,15 @@ def addUser(user: User):
 			name,
 			password 
 			) VALUES (?, ?)""",(
-				data.name,
-				data.password
+				user.name,
+				user.password
 			)
 		)
 		conn.commit()
 		return cursor.lastrowid
 
 def getUsers():
-	with getConnection() as conn:
+	with getUserConnection() as conn:
 		cursor = conn.cursor()
 		cursor.execute("SELECT * FROM users")
 		rows = cursor.fetchall()
@@ -244,7 +247,7 @@ def getSysDatasConnection():
 		cursor = conn.cursor()
 		cursor.execute("""
 		CREATE TABLE IF NOT EXISTS items (
-			name TEXT,
+			name TEXT
 			)"""
 		)
 		conn.commit()
@@ -268,6 +271,115 @@ def getItems():
 		cursor.execute("SELECT * FROM items")
 		rows = cursor.fetchall()
 		return [Item(*row) for row in rows]
+
+#()
+
+class ARSTable:
+	def __init__(self, table: str,object):
+		self.table: str = table
+		self.object = object
+
+	def createTable(self, **columns):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			cursor = conn.cursor()
+
+			col_defs = ', '.join([f"{column} {dataType}" for column, dataType in columns.items()]) # Defining columns and dataTypes.
+			query = f"CREATE TABLE IF NOT EXISTS {self.table} ({col_defs});"
+
+			try:
+				 cursor.execute(query)
+				 conn.commit()
+				 return True
+			except Exception as e:
+				raise e
+
+	def getDatasFromTable(self, *columns):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			cursor = conn.cursor()
+			if columns:
+				cols = ", ".join(columns)
+				query = f"SELECT {cols} FROM {self.table};"
+			else:
+				query = f"SELECT * FROM {self.table};"
+			try:
+				cursor.execute(query)
+				return [self.object(*row) for row in cursor.fetchall()]
+			except Exception as e:
+				raise e
+
+	def setDatasIntoTable(self, **datas):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			cursor = conn.cursor()
+
+			cols = ', '.join(datas.keys())
+			placeholders = ', '.join(['?'] * len(datas))
+			values = tuple(datas.values())
+
+			query = f"INSERT INTO {self.table} ({cols}) VALUES ({placeholders});"
+			try:
+				cursor.execute(query,values)
+				conn.commit()
+			except Exception as e:
+				import traceback 
+				traceback.print_exc()
+
+	def getVehicles(self,obj):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			cursor = conn.cursor()
+			cursor.execute(f"SELECT * FROM {self.table}")
+			return [obj(*row) for row in cursor.fetchall()]
+	def clearTable(self):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			cursor = conn.cursor()
+			cursor.execute(f"DELETE FROM {self.table}")
+			conn.commit()
+			self.getDatasFromTable()
+
+#________________ << module methodes >> _________________#
+def createTable(table: str, **columns):
+	with sqlite3.connect(getSysDbPath()) as conn:
+		cursor = conn.cursor()
+
+		col_defs = ', '.join([f"{column} {dataType}" for column, dataType in columns.items()]) # Defining columns and dataTypes.
+		query = f"CREATE TABLE IF NOT EXISTS {table} ({col_defs});"
+
+		try:
+			 cursor.execute(query)
+			 conn.commit()
+		except Exception as e:
+			raise e
+
+def getDatasFromTable(table: str, *columns):
+	with sqlite3.connect(getSysDbPath()) as conn:
+		cursor = conn.cursor()
+		if columns:
+			cols = ", ".join(columns)
+			query = f"SELECT {cols} FROM {table};"
+		else:
+			query = f"SELECT * FROM {table};"
+		try:
+			cursor.execute(query)
+			return cursor.fetchall()
+		except:
+			return []
+
+def setDatasIntoTable(table: str, **datas):
+	with sqlite3.connect(getSysDbPath()) as conn:
+		cursor = conn.cursor()
+
+		cols = ', '.join(datas.keys())
+		placeholders = ', '.join(['?'] * len(datas))
+		values = tuple(datas.values())
+
+		query = f"INSERT INTO {table} ({cols}) VALUES ({placeholders});"
+
+		try:
+			cursor.execute(query,values)
+			conn.commit()
+		except Exception as e:
+			import traceback 
+			traceback.print_exc()
+
 
 if __name__ == '__main__':
 	pass

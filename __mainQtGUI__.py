@@ -1,12 +1,17 @@
-from models import WeightData
+from models import WeightData,Vehicle
 from db import (
 	getWeightById, 
 	addNewWeight, 
 	getAllWeights, 
 	getAllWeightsOfRange, 
 	getLastRowId, 
-	updateWeight
+	updateWeight,
+	getUsers,
+	getItems,
+	getDatasFromTable,
+	ARSTable
 )
+import models
 from pdf_generator import generate_pdf
 from utils import getNow, openFile
 from validator import isZero, isDigit
@@ -29,11 +34,13 @@ class UserAuth(QtWidgets.QDialog):
 		self.setWindowTitle("User Authentication")
 		self.setFixedSize(350,250)
 
-		self.operator_names = ["SOHEL", "RUBEL", "SAYEM"]
+		self.operators = [[user.name,user.password] for user in ARSTable("users",models.User).getDatasFromTable()]
+		print(self.operators)
+		self.operator_names = [operator[0] for operator in self.operators]
 
 		self.root = QtWidgets.QFormLayout(self)
 		self.user_name_input = QtWidgets.QComboBox(self)
-		self.completer = QtWidgets.QCompleter(self.operator_names)
+		self.completer = QtWidgets.QCompleter(self.operators[0])
 		self.user_pass_input = QtWidgets.QLineEdit(self)
 
 		self.user_name_input.setEditable(False)
@@ -42,8 +49,6 @@ class UserAuth(QtWidgets.QDialog):
 		self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
 		self.user_name_input.setCompleter(self.completer)
 
-		#self.user_name_input.setText("Sohel")
-		#self.user_name_input.setReadOnly(True)
 		self.user_pass_input.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 		self.user_pass_input.setPlaceholderText("Enter Password...")
 		self.user_pass_input.returnPressed.connect(self.auth)
@@ -53,14 +58,13 @@ class UserAuth(QtWidgets.QDialog):
 
 		self.user_name_input.setFixedHeight(40)
 		self.user_pass_input.setFixedHeight(40)
-		#self.submit_btn.setFixedSize(250,30)
 		self.root.addRow("User Name",self.user_name_input)
 		self.root.addRow("Password",self.user_pass_input)
 		self.root.addRow(self.submit_btn)
 		self.user_pass_input.setFocus()
 
 	def auth(self):
-		if self.user_name_input.currentText() in self.operator_names and self.user_pass_input.text() == "s":
+		if self.user_name_input.currentText() in self.operator_names and self.user_pass_input.text() in [operator[1] for operator in self.operators]:
 			self.accept()
 		else:
 			QtWidgets.QMessageBox.warning(self,"Credential missmatch","Please Login with the right password.")
@@ -167,6 +171,8 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		]
 
 		vhcl_serial = ["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY"]
+		#[vehicle.name for vehicle in [Vehicle(vhcl[0]) for vhcl in getDatasFromTable("vehicles")]]
+		print(vhcl_serial) #["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY"]
 		client_names = ["ROMJAN TRADERS","HAFIZUR RAHMAN","AMIRATH LUBE","CITY LUBE","FOOD", "ANY"]
 		operator_names = ["SOHEL", "RUBEL", "SAYEM"]
 		item_names = ["WOOD", "M/S. ROD","SOYABEAN","RICE","LUBRICANT","OIL","TAR","WHEAT","CORN","TEEN", "SCRAP", "HAY","PLASTIC","BUNDLE"]
@@ -379,6 +385,11 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			updateWeight(weight_obj)
 			QMessageBox.information(self, "Success", "Weight data updated successfully.")
 			self.load_data()
+			#data = getWeightById(int(weight_id))
+			if weight_obj:
+				filename = f"{weight_obj.client_name}_weight_report_{weight_obj.id}.pdf"
+				fp = generate_pdf(weight_obj.__dict__, filename)
+				openFile(fp)
 
 		except Exception as e:
 			QMessageBox.critical(self, "Error", f"Failed to update data:\n{e}")	
