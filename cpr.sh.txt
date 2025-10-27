@@ -1,2 +1,0 @@
- cp "C:\Users\Sohel's WorkSpace\codings\py_projects\QTProjects\GitVersion\PyQtScaleReport\weights.db" "$Env:ProgramData\ScaleReport"
- cp "$Env:ProgramData\ScaleReport\weights.db" "C:\Users\Sohel's WorkSpace\codings\py_projects\QTProjects\GitVersion\PyQtScaleReport\"
