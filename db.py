@@ -1,4 +1,5 @@
 import sqlite3
+from dataclasses import fields, is_dataclass
 from models import WeightData, User, Item
 import os,platform
 
@@ -274,26 +275,79 @@ def getItems():
 
 #()
 
-class ARSTable:
-	def __init__(self, table: str,object):
-		self.table: str = table
-		self.object = object
+import sqlite3
+from dataclasses import fields, is_dataclass
 
-	def createTable(self, **columns):
+class ARSTable:
+	def __init__(self, table: str, model, unique_fields=None):
+		self.table: str = table
+		self.model = model
+		self.unique_fields = unique_fields or []	# fields that must be unique
+
+	def _mapPythonTypeToSQLite(self, py_type):
+		type_map = {
+			int: "INTEGER",
+			float: "REAL",
+			str: "TEXT",
+			bool: "INTEGER",
+		}
+		return type_map.get(py_type, "TEXT")
+
+	def createTable(self):
+		if not is_dataclass(self.model):
+			raise TypeError(f"{self.model} must be a dataclass")
+
 		with sqlite3.connect(getSysDbPath()) as conn:
 			cursor = conn.cursor()
+			columns_sql = []
+			for f in fields(self.model):
+				col_type = self._mapPythonTypeToSQLite(f.type)
+				col_def = f"{f.name} {col_type}"
 
-			col_defs = ', '.join([f"{column} {dataType}" for column, dataType in columns.items()]) # Defining columns and dataTypes.
-			query = f"CREATE TABLE IF NOT EXISTS {self.table} ({col_defs});"
+				if f.name == "id":
+					col_def += " PRIMARY KEY AUTOINCREMENT"
+				elif f.name in self.unique_fields:
+					col_def += " UNIQUE"
 
-			try:
-				 cursor.execute(query)
-				 conn.commit()
-				 return True
-			except Exception as e:
-				raise e
+				columns_sql.append(col_def)
 
-	def getDatasFromTable(self, *columns):
+			query = f"CREATE TABLE IF NOT EXISTS {self.table} ({', '.join(columns_sql)});"
+			cursor.execute(query)
+			conn.commit()
+			cursor.close()
+			return True
+
+	def _isDuplicate(self, conn, **datas):
+		# Check if a record already exists with the same values for unique fields
+		for field in self.unique_fields:
+			if field in datas:
+				cursor = conn.cursor()
+				query = f"SELECT COUNT(*) FROM {self.table} WHERE {field} = ?"
+				cursor.execute(query, (datas[field],))
+				exists = cursor.fetchone()[0] > 0
+				cursor.close()
+				if exists:
+					return True
+		return False
+
+	def setDatas(self, **datas):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			if self._isDuplicate(conn, **datas):
+				print(f"[WARN] Duplicate value detected in unique field(s): {self.unique_fields}. Skipping insert.")
+				return None
+
+			cursor = conn.cursor()
+			cols = ', '.join(datas.keys())
+			placeholders = ', '.join(['?'] * len(datas))
+			values = tuple(datas.values())
+			query = f"INSERT INTO {self.table} ({cols}) VALUES ({placeholders});"
+			cursor.execute(query, values)
+			conn.commit()
+			rowid = cursor.lastrowid
+			cursor.close()
+			return rowid
+
+	def getDatas(self, *columns):
 		with sqlite3.connect(getSysDbPath()) as conn:
 			cursor = conn.cursor()
 			if columns:
@@ -301,84 +355,17 @@ class ARSTable:
 				query = f"SELECT {cols} FROM {self.table};"
 			else:
 				query = f"SELECT * FROM {self.table};"
-			try:
-				cursor.execute(query)
-				return [self.object(*row) for row in cursor.fetchall()]
-			except Exception as e:
-				raise e
+			cursor.execute(query)
+			rows = cursor.fetchall()
+			cursor.close()
+			return [self.model(*row) for row in rows]
 
-	def setDatasIntoTable(self, **datas):
-		with sqlite3.connect(getSysDbPath()) as conn:
-			cursor = conn.cursor()
-
-			cols = ', '.join(datas.keys())
-			placeholders = ', '.join(['?'] * len(datas))
-			values = tuple(datas.values())
-
-			query = f"INSERT INTO {self.table} ({cols}) VALUES ({placeholders});"
-			try:
-				cursor.execute(query,values)
-				conn.commit()
-			except Exception as e:
-				import traceback 
-				traceback.print_exc()
-
-	def getVehicles(self,obj):
-		with sqlite3.connect(getSysDbPath()) as conn:
-			cursor = conn.cursor()
-			cursor.execute(f"SELECT * FROM {self.table}")
-			return [obj(*row) for row in cursor.fetchall()]
 	def clearTable(self):
 		with sqlite3.connect(getSysDbPath()) as conn:
 			cursor = conn.cursor()
 			cursor.execute(f"DELETE FROM {self.table}")
 			conn.commit()
-			self.getDatasFromTable()
-
-#________________ << module methodes >> _________________#
-def createTable(table: str, **columns):
-	with sqlite3.connect(getSysDbPath()) as conn:
-		cursor = conn.cursor()
-
-		col_defs = ', '.join([f"{column} {dataType}" for column, dataType in columns.items()]) # Defining columns and dataTypes.
-		query = f"CREATE TABLE IF NOT EXISTS {table} ({col_defs});"
-
-		try:
-			 cursor.execute(query)
-			 conn.commit()
-		except Exception as e:
-			raise e
-
-def getDatasFromTable(table: str, *columns):
-	with sqlite3.connect(getSysDbPath()) as conn:
-		cursor = conn.cursor()
-		if columns:
-			cols = ", ".join(columns)
-			query = f"SELECT {cols} FROM {table};"
-		else:
-			query = f"SELECT * FROM {table};"
-		try:
-			cursor.execute(query)
-			return cursor.fetchall()
-		except:
-			return []
-
-def setDatasIntoTable(table: str, **datas):
-	with sqlite3.connect(getSysDbPath()) as conn:
-		cursor = conn.cursor()
-
-		cols = ', '.join(datas.keys())
-		placeholders = ', '.join(['?'] * len(datas))
-		values = tuple(datas.values())
-
-		query = f"INSERT INTO {table} ({cols}) VALUES ({placeholders});"
-
-		try:
-			cursor.execute(query,values)
-			conn.commit()
-		except Exception as e:
-			import traceback 
-			traceback.print_exc()
+			cursor.close()
 
 
 if __name__ == '__main__':

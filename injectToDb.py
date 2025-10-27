@@ -1,24 +1,30 @@
-from db import createTable, setDatasIntoTable, getDatasFromTable, ARSTable
+from db import ARSTable
 import models
 
 #createTable("vehicles",)
 
-vehicles = ARSTable("vehicles",models.Vehicle)
-print(vehicles.createTable(id="INTEGER PRIMARY KEY AUTOINCREMENT",name="TEXT"))
+ClientsTable = ARSTable("clients", Client, unique_fields=["name"])
+
+ItemTable = ARSTable("items",models.Item,unique_fields=["name"])
+
+VhclTable = ARSTable("vehicle_serials", VehicleSerial, unique_fields=["serial"])
 
 
-def addVehicle():
+def addVehicles():
 	for item in ["DMT-","DMN-","DMD-","CMN-","CMT-","BT-","LN-","LT-","KHT-","TROLLEY"]:
-		vehicles.setDatasIntoTable(name=item)
+		VhclTable.setDatasIntoTable(name=item)
 
-def addItem():
+def addItems():
 	for item in ["WOOD", "M/S. ROD","SOYABEAN","RICE","LUBRICANT","OIL","TAR","BUTIMEN","WHEAT","CORN","TEEN","IRON", "SCRAP","BOOKS", "HAY","PLASTIC","BUNDLE"]:
-		vehicles.setDatasIntoTable(name=item)
+		ItemTable.setDatasIntoTable(name=item)
+
+def addClients():
+	for item in ["ROMJAN TRADERS","HAFIZUR RAHMAN","FOOD","ANY","MOHAMMAD ALI","QUALITY AGRO","CITY LUBE","AMIRATH LUBE"]:
+		ClientsTable.setDatas(name=item)
 
 if __name__ == '__main__':
-	#vehicles.clearTable()
-	#vehicles.setDatasIntoTable(name="RUBEL",password="4")
-	#vehicles.setDatasIntoTable(name="SAYEM",password="qc")
-	addVehicle()
-	#addItem()
-	print(vehicles.getDatasFromTable())
+	addVehicles()
+	addItems()
+	addClients()
+	
+	print(ClientsTable.getDatas())
