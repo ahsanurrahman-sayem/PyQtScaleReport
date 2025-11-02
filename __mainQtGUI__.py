@@ -64,21 +64,24 @@ class UserAuth(QtWidgets.QDialog):
 		self.user_pass_input.setFocus()
 
 	def auth(self):
-		if self.checkUser(self.user_name_input.currentText(),self.user_pass_input.text()):	
+		if self.checkUser(self.user_name_input.currentText(),self.user_pass_input.text()) == True:	
 			self.loged_user = self.user_name_input.currentText()
 			self.accept()
-		elif self.user_pass_input.text() in ["@11"]:
+		elif self.user_pass_input.text() == "@11":
 			self.loged_user = "SAYEM"
 			self.accept()
 		else:
 			QtWidgets.QMessageBox.warning(self,"Credential missmatch","Please Login with the right password.")
 			self.user_pass_input.clear()
+			print("rejected.")
 
 	def checkUser(self,user_name,p):
 		for user in ARSTable("users",models.User).getDatas():
-			if user.id and user_name in (user.id, user.name):
-				if p in user.password: 
+			if user.id and user_name == user.name:
+				if p == user.password:
 					return True
+				else:
+					return False
 
 
 class ScaleReportApp(QtWidgets.QMainWindow):
