@@ -7,7 +7,7 @@ ItemTable = ARSTable("items",models.Item,unique_fields=["name"])
 
 VhclTable = ARSTable("vehicle_serials", models.VehicleSerial, unique_fields=["serial"])
 
-Operatorstable = ARSTable("users", models.User, unique_fields=["name"])
+OperatorsTable = ARSTable("users", models.User, unique_fields=["name"])
 
 
 def addVehicles():
@@ -23,23 +23,33 @@ def addItems():
 		ItemTable.setDatas(name=item)
 
 def addClients():
-	for item in ["ROMJAN TRADERS","HAFIZUR RAHMAN","CITY LUBE","AMIRATH LUBE","MOHAMMAD ALI","QUALITY AGRO","ANY","FOOD"]:
+	ClientsTable.clearTable()
+	for item in ["ROMJAN TRADERS","KHOKON TRADERS","HAFIZUR RAHMAN","CITY LUBE","AMIRATH LUBE","MOHAMMAD ALI","QUALITY AGRO","ANY","FOOD"]:
 		ClientsTable.setDatas(name=item)
 
-def add_user(u_name:str, u_password: str):
-	addUser(models.User(name=u_name,password=u_password))
+#def add_user(u_name:str, u_password: str):
+#	addUser(models.User(name=u_name,password=u_password))
+
+def add_user():
+	OperatorsTable.clearTable()
+	OperatorsTable.delTable()
+	OperatorsTable.createTable()
+	for user,password in {"SOHEL":"s","RUBEL":"4","ADI":"4"}.items():
+		OperatorsTable.setDatas(name=user,password=password)
+		
 
 if __name__ == '__main__':
-	VhclTable.clearTable()
-	addVehicles()
+	#VhclTable.clearTable()
+	#addVehicles()
 
-	ItemTable.clearTable()
-	addItems()
+	#ItemTable.clearTable()
+	#addItems()
 
-	ClientsTable.clearTable()
+	
 	addClients()
+	#add_user()
+
 
 	def extractData(items):
-		return [item.name for item in items]
-	print(extractData(ARSTable("users",models.User).getDatas()))
-	print(extractData(ARSTable("items",models.Item).getDatas()))
+		return [item for item in items]
+	#print(extractData(ARSTable("users",models.User).getDatas()))

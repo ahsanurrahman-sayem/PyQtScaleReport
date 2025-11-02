@@ -36,7 +36,7 @@ def inject(id:int,weight_id:int):
 
 
 def getConnection():
-	conn = sqlite3.connect(getSysDbPath(cwd=False))
+	conn = sqlite3.connect(getSysDbPath(cwd=True))
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
@@ -274,8 +274,7 @@ def getItems():
 		cursor.execute("SELECT * FROM items")
 		rows = cursor.fetchall()
 		cursor.close()
-		#return [Item(*row) for row in rows]
-		return rows
+		return [Item(*row) for row in rows]
 
 #()
 
@@ -370,6 +369,8 @@ class ARSTable:
 			cursor.execute(f"DELETE FROM {self.table}")
 			conn.commit()
 			cursor.close()
+	def modifyColumn():
+	 	pass
 
 	def delTable(self):
 		with sqlite3.connect(getSysDbPath()) as conn:
