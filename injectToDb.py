@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
 	
 	addClients()
-	#add_user()
+	add_user()
 
 
 	def extractData(items):

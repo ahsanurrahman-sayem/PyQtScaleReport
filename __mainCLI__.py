@@ -18,7 +18,7 @@ def main():
 		'7':"7. Add item",
 		'8':"8. View items",
 		'9':"9. Add User",
-		'10':"10.View Users",
+		'10':"10. View Users",
 		'0':"0. Exit",
 	}
 

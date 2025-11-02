@@ -36,7 +36,7 @@ def inject(id:int,weight_id:int):
 
 
 def getConnection():
-	conn = sqlite3.connect(getSysDbPath(cwd=True))
+	conn = sqlite3.connect(getSysDbPath(cwd=False))
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
