@@ -14,4 +14,7 @@ def isDigit(value):
 def isValue(value,valueToUse):
 # first check if value is not empty
 # if the value is empty then valueToUse otherwise return value
-	return value if value is not ""  else valueToUse
+	return value if not value else valueToUse
+
+def isEmpty(value):
+	return False if value else True

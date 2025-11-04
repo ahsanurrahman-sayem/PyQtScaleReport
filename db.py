@@ -93,7 +93,7 @@ def updateWeight(weight: WeightData):
 			id = ?,
 			load_weight = ?, load_weight_date = ?,
 			unload_weight = ?, unload_weight_date = ?,
-			net_weight = ?, client_name = ?, qty = ?
+			net_weight = ?, client_name = ?, qty = ?, vehicle_no = ?
 		WHERE id = ?
 	""", (
 		weight.id,
@@ -104,6 +104,7 @@ def updateWeight(weight: WeightData):
 		weight.net_weight,
 		weight.client_name,
 		weight.qty,
+		weight.vehicle_no,
 		weight.id
 	))
 	conn.commit()

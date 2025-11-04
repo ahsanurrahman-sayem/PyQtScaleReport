@@ -16,7 +16,7 @@ from db import (
 	getUsers,
 	getItems
 )
-from validator import isZero
+from validator import isZero, isEmpty
 
 from models import WeightData,User,Item
 
@@ -145,8 +145,10 @@ def edit_report(weight_id: int):
 	load_weight = get_input("New Load Weight (kg): ")
 	unload_weight = get_input("New Unload Weight (kg): ")
 	client_name = get_input("New Client name:")
+	vehicle_no = get_input("New vehicle number:")
 	qty = get_input("New Quantity:")
 
+	data.vehicle_no = vehicle_no if not isEmpty(vehicle_no) else data.vehicle_no
 	data.load_weight = load_weight if load_weight.isdigit() else data.load_weight
 	data.unload_weight = unload_weight if unload_weight.isdigit() else data.unload_weight
 
