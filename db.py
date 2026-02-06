@@ -4,7 +4,7 @@ from models import WeightData, User, Item
 import os,platform
 
 
-def getSysDbPath(cwd=None):
+def getSysDbPath(cwd=False):
 	system = platform.system()
 	match system:
 		case 'Linux':
@@ -73,7 +73,7 @@ def getAllWeightsOfRange(start_date, end_date):
 		cursor = conn.cursor()
 		cursor.execute("""SELECT * FROM weights WHERE (load_weight_date BETWEEN ? AND ?) OR (unload_weight_date BETWEEN ? AND ?)""", (start_date, end_date, start_date, end_date))
 		rows = cursor.fetchall()
-		return [WeightData(*row) for row in rows]
+		return [WeightData(*row) for row in rows][::-1]
 
 def getWeightById(weight_id):
 	conn = getConnection()
@@ -356,9 +356,35 @@ class ARSTable:
 			cursor = conn.cursor()
 			if columns:
 				cols = ", ".join(columns)
-				query = f"SELECT {cols} FROM {self.table};"
+				query = f"SELECT * FROM {self.table} WHERE {cols};"
 			else:
 				query = f"SELECT * FROM {self.table};"
+			cursor.execute(query)
+			rows = cursor.fetchall()
+			cursor.close()
+			return [self.model(*row) for row in rows]
+
+	def getDatasWithLimit(self, *columns, limit):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			cursor = conn.cursor()
+			if columns:
+				cols = ", ".join(columns)
+				query = f"SELECT * FROM {self.table} WHERE {cols} ORDER BY rowid DESC LIMIT {limit};"
+			else:
+				query = f"SELECT * FROM {self.table} ORDER BY rowid DESC LIMIT {limit};"
+			cursor.execute(query)
+			rows = cursor.fetchall()
+			cursor.close()
+			return [self.model(*row) for row in rows]
+
+	def getDatasWithKey(self, *columns, limit):
+		with sqlite3.connect(getSysDbPath()) as conn:
+			cursor = conn.cursor()
+			if columns:
+				cols = ", ".join(columns)
+				query = f"SELECT * FROM {self.table} WHERE {cols} ORDER BY rowid DESC LIMIT {limit};"
+			else:
+				query = f"SELECT * FROM {self.table} ORDER BY rowid DESC LIMIT {limit};"
 			cursor.execute(query)
 			rows = cursor.fetchall()
 			cursor.close()

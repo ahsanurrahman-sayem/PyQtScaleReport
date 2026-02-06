@@ -16,9 +16,94 @@ from utils import getNow, openFile
 from validator import isZero, isDigit
 
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QWidget
 
 import sys, os, platform, subprocess, win32event, win32api, winerror
+
+
+class ClientViewWindow(QWidget):
+	def __init__(self):
+		super().__init__()
+		self.setWindowTitle("Reports By Client Name")
+		if getattr(sys, 'frozen', False):
+			ico_path = os.path.join(sys._MEIPASS, "favicon.ico")
+		else:
+			ico_path = "favicon.ico"
+
+		self.setWindowIcon(QtGui.QIcon(ico_path))
+		self.setGeometry(100, 100, 1150, 390)
+
+		self.layout = QtWidgets.QVBoxLayout()
+		self.inputLayout = QtWidgets.QGridLayout()
+		self.client_input = QtWidgets.QComboBox(self)
+		#self.client_input1 = QtWidgets.QComboBox(self)
+
+		self.client_input.addItems(c.name for c in ARSTable("clients",models.Client).getDatas())
+		self.client_input.setCompleter(QtWidgets.QCompleter(c.name for c in ARSTable("clients",models.Client).getDatas()))
+		self.client_input.setEditable(False)
+		self.inputLayout.addWidget(self.client_input,0,0)
+
+		#self.client_input1.addItems(c.name for c in ARSTable("clients",models.Client).getDatas())
+		#self.client_input1.setCompleter(QtWidgets.QCompleter(c.name for c in ARSTable("clients",models.Client).getDatas()))
+		#self.client_input1.setEditable(False)
+		#self.inputLayout.addWidget(self.client_input1,0,1)
+
+		refresh_btn = QtWidgets.QPushButton("🔄 Refresh")
+		refresh_btn.clicked.connect(self.load_data)
+		self.inputLayout.addWidget(refresh_btn,1,0)
+
+		self.layout.addLayout(self.inputLayout)
+
+		self.tree = QtWidgets.QTableWidget()
+		self.tree.setColumnCount(8)
+		self.tree.setRowCount(2)
+		self.tree.setWordWrap(True)
+		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date"])
+		self.tree.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+		self.tree.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+		self.tree.cellDoubleClicked.connect(self.view_pdf_by_id)
+		self.layout.addWidget(self.tree)
+
+		self.load_data()
+		self.setLayout(self.layout) # Init main Layout
+
+
+	def load_data(self):
+		def centerItem(text):
+			item = QtWidgets.QTableWidgetItem(text)
+			item.setTextAlignment(QtCore.Qt.AlignCenter)
+			return item
+		self.tree.setRowCount(0)
+		self.tree.setWordWrap(True)
+		for row_idx, item in enumerate(ARSTable("weights",models.WeightData).getDatasWithKey(f"client_name = '{self.client_input.currentText()}'",limit=100)):
+			self.tree.insertRow(row_idx)
+			self.tree.setItem(row_idx, 0, centerItem(str(item.id)))
+			self.tree.setItem(row_idx, 1, centerItem(item.client_name))
+			self.tree.setItem(row_idx, 2, centerItem(item.vehicle_no))
+			self.tree.setItem(row_idx, 3, centerItem(str(int(item.load_weight))))
+			self.tree.setItem(row_idx, 4, centerItem(str(int(item.unload_weight))))
+			self.tree.setItem(row_idx, 5, centerItem(str(int(item.net_weight))))
+			self.tree.setItem(row_idx, 6, centerItem(item.load_weight_date))
+			self.tree.setItem(row_idx, 7, centerItem(item.unload_weight_date))
+
+		# Optional: center-align headers too
+		header = self.tree.horizontalHeader()
+		for i in range(self.tree.columnCount()):
+			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+			self.tree.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignCenter)
+		self.tree.update()
+
+	def view_pdf_by_id(self, row, _):
+		weight_id = self.tree.item(row, 0).text()
+		data = getWeightById(int(weight_id))
+		if data:
+			filename = f"{data.client_name}_weight_report_{data.id}.pdf"
+			fp = generate_pdf(data.__dict__, filename)
+			openFile(fp)
+
+# -----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
+
 
 class UserAuth(QtWidgets.QDialog):
 	def __init__(self, parent = None):
@@ -111,67 +196,12 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		self.tabs.addTab(self.view_tab, "📋 View All Weight Reports")
 		self.tabs.addTab(self.modify_tab,"✏ Edit Weight By ID")
 		self.tabs.addTab(self.search_tab, "🔍 Search Weight Report by ID")
-		#self.tabs.addTab(self.range_tab, "🔍 Search Reports by Range")
 		
 		self.initCreateTab()
 		self.initViewTab()
 		self.createModifyTab()
 		self.initSearchTab()
-		#self.initRangeTab()
 
-	def initRangeTab(self):
-		layout = QtWidgets.QVBoxLayout()
-		self.start_date = QtWidgets.QDateEdit()
-		self.start_date.setCalendarPopup(True)
-		self.start_date.setDate(QtCore.QDate.currentDate())
-
-		self.end_date = QtWidgets.QDateEdit()
-		self.end_date.setCalendarPopup(True)
-		self.end_date.setDate(QtCore.QDate.currentDate())
-		form_layout = QtWidgets.QFormLayout()
-
-		form_layout.addRow(QtWidgets.QLabel("Start Date:"), self.start_date)
-		form_layout.addRow(QtWidgets.QLabel("End Date:"), self.end_date)
-
-		search_btn = QtWidgets.QPushButton("🔍 Show Reports")
-		search_btn.clicked.connect(self.load_range_data)
-		form_layout.addWidget(search_btn)
-
-		self.table = QtWidgets.QTableWidget()
-		self.table.setColumnCount(7)
-		self.table.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date"])
-		self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-		self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-		self.table.cellDoubleClicked.connect(self.view_pdf_by_id)
-		form_layout.addWidget(self.table)
-		layout.addLayout(form_layout)
-		self.range_tab.setLayout(layout)
-
-	def load_range_data(self):
-		start = self.start_date.date().toString("dd-MM-yyyy")
-		end = self.end_date.date().toString("dd-MM-yyyy")
-		weights = getAllWeightsOfRange(start,end)
-		def centerItem(text):
-			item = QtWidgets.QTableWidgetItem(text)
-			item.setTextAlignment(QtCore.Qt.AlignCenter)
-			return item
-
-		for row_idx, item in enumerate(weights):
-			self.table.insertRow(row_idx)
-			self.table.setItem(row_idx, 0, centerItem(str(item.id)))
-			self.table.setItem(row_idx, 1, centerItem(item.client_name))
-			self.table.setItem(row_idx, 2, centerItem(item.vehicle_no))
-			self.table.setItem(row_idx, 3, centerItem(str(item.load_weight)))
-			self.table.setItem(row_idx, 4, centerItem(str(item.unload_weight)))
-			self.table.setItem(row_idx, 5, centerItem(str(item.net_weight)))
-			self.table.setItem(row_idx, 6, centerItem(item.load_weight_date))
-			self.table.setItem(row_idx, 7, centerItem(item.unload_weight_date))
-
-		# Optional: center-align headers too
-		header = self.table.horizontalHeader()
-		for i in range(self.table.columnCount()):
-			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-			self.table.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignCenter)
 
 
 	def initCreateTab(self):
@@ -230,6 +260,9 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		self.create_tab.setLayout(layout)
 
 
+	def open_clientView(self):
+		self.m = ClientViewWindow()
+		self.m.show()
 	def initSearchTab(self):
 		layout = QtWidgets.QFormLayout()
 
@@ -244,6 +277,10 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 
 		search_btn = QtWidgets.QPushButton("🔍 Search Report")
 		search_btn.clicked.connect(self.search_entry_func)
+
+		btn_clientView = QtWidgets.QPushButton("List Reports By Client Name")
+		btn_clientView.clicked.connect(self.open_clientView)
+		layout.addRow(btn_clientView)
 		layout.addRow(search_btn)
 
 		self.search_tab.setLayout(layout)
@@ -290,14 +327,13 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		self.load_data()
 
 	def load_data(self):
-		weights = getAllWeights()
-
 		def centerItem(text):
 			item = QtWidgets.QTableWidgetItem(text)
 			item.setTextAlignment(QtCore.Qt.AlignCenter)
 			return item
-
-		for row_idx, item in enumerate(weights[::-1]):
+		self.tree.setRowCount(0)
+		self.tree.setWordWrap(True)
+		for row_idx, item in enumerate(ARSTable("weights",models.WeightData).getDatasWithLimit(limit=100)):
 			self.tree.insertRow(row_idx)
 			self.tree.setItem(row_idx, 0, centerItem(str(item.id)))
 			self.tree.setItem(row_idx, 1, centerItem(item.client_name))
@@ -313,10 +349,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		for i in range(self.tree.columnCount()):
 			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
 			self.tree.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignCenter)
-		self.tree.resizeRowsToContents()
-		#self.tree.resizeColumnsToContents()
-
-
+		self.tree.update()
 
 	def getFieldValue(self,value):
 	#return the value from QtEntryField Object

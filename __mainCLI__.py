@@ -1,6 +1,19 @@
 from os import system
 import argparse
-from cli_handler import create_report, search_report, view_all_reports,view_a_report, add_items, view_items, add_user, view_users, edit_report, modify_id, delete_report
+from cli_handler import (
+	create_report,
+	search_report,
+	view_all_reports,
+	view_a_report,
+	add_items,
+	view_items,
+	add_user,
+	view_users,
+	edit_report,
+	modify_id,
+	delete_report,
+	add_client
+)
 
 def cl():
 	pass
@@ -11,14 +24,15 @@ def main():
 	catList={
 		'1':"1. Create a new report",
 		'2':"2. Search a report by ID",
-		'3':"3. View all reports",
+		'3':"3. View all reports\n",
 		'4':"4. Edit a report",
 		'5':"5. Delete a report",
-		'6':"6. Modify id of a report",
+		'6':"6. Modify id of a report\n",
 		'7':"7. Add item",
-		'8':"8. View items",
+		'8':"8. View items\n",
 		'9':"9. Add User",
-		'10':"10. View Users",
+		'10':"10. View Users\n",
+		'11':"11. Add Client\n",
 		'0':"0. Exit",
 	}
 
@@ -80,6 +94,8 @@ def main():
 				add_user()
 			elif choice == '10':
 				view_users()
+			elif choice == '11':
+				add_client()
 			elif choice == '0':
 				break
 			else:

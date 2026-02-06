@@ -11,8 +11,10 @@ OperatorsTable = ARSTable("users", models.User, unique_fields=["name"])
 
 
 def addVehicles():
-	#VhclTable.createTable()
-	for item in ["DMT-","DMN-","DMD-","CMT-","CMN-","CMD-","LN-","LT-","NN-","FT-","FDH-","BT-","KHT-","TROLLEY"]:
+	VhclTable.clearTable()
+	VhclTable.delTable()
+	VhclTable.createTable()
+	for item in ["DMT-","DMN-","DMD-","CMT-","CMN-","CMD-","LN-","LT-","NN-","FT-","FDH-","BT-","KHT-","TROLLEY","AUTO","RIKSHAW"]:
 		VhclTable.setDatas(serial=item)
 
 def addItems():
@@ -24,7 +26,9 @@ def addItems():
 
 def addClients():
 	ClientsTable.clearTable()
-	for item in ["ROMJAN TRADERS","KHOKON TRADERS","HAFIZUR RAHMAN","CITY LUBE","AMIRATH LUBE","MOHAMMAD ALI","QUALITY AGRO","ANY","FOOD"]:
+	ClientsTable.delTable()
+	ClientsTable.createTable()
+	for item in ["ANY","ROMJAN TRADERS","KHOKON TRADERS","HAFIZUR RAHMAN","CITY LUBE","FOOD","AMIRATH LUBE","MOHAMMAD ALI","QUALITY AGRO","IBRAHIM TRADERS","RUBEL TRADERS"]:
 		ClientsTable.setDatas(name=item)
 
 #def add_user(u_name:str, u_password: str):
@@ -39,15 +43,14 @@ def add_user():
 		
 
 if __name__ == '__main__':
-	#VhclTable.clearTable()
+	
 	#addVehicles()
 
-	#ItemTable.clearTable()
 	#addItems()
 
 	
 	addClients()
-	add_user()
+	#add_user()
 
 
 	def extractData(items):

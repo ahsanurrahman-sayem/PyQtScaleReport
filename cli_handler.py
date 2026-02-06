@@ -18,7 +18,7 @@ from db import (
 )
 from validator import isZero, isEmpty
 
-from models import WeightData,User,Item
+from models import WeightData,User,Item, Client
 
 from pdf_generator import generate_pdf
 from utils import getNow
@@ -223,7 +223,13 @@ def view_users():
 	else:
 		print(f"Users:{users}")
 
-
+def add_client():
+	while True:
+		item = get_input("Enter Client Name: ")
+		if item:
+			addItem(Client(Id=None,name=item))
+		else:
+			return
 def open_pdf(fp):
 	try:
 		if platform.system() == "Windows" or platform.system() == "nt":
