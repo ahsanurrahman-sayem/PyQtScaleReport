@@ -75,12 +75,12 @@ def main():
 				report_id = input("Enter report ID to edit: ")
 				if report_id.isdigit():
 					edit_report(int(report_id))
-					view_all_reports()
+					#view_all_reports()
 			elif choice == '5':
 				report_id = input("Enter report ID to delete: ")
 				if report_id.isdigit():
 					delete_report(int(report_id))
-					view_all_reports()
+					#view_all_reports()
 			elif choice == '6':
 				report_id = input("Enter current id:")
 				new_id = input("Enter modified id:")

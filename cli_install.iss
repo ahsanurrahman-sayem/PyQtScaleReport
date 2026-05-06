@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=Scale ReportCLI
-AppVersion=1.9.0
+AppVersion=2.1.0
 AppPublisher=Ahsanur Rahman
 DefaultDirName={pf}\Scale ReportCLI
 DefaultGroupName=Scale ReportCLI
