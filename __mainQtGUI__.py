@@ -18,7 +18,20 @@ from validator import isZero, isDigit
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QMessageBox, QWidget
 
-import sys, os, platform, subprocess, win32event, win32api, winerror
+import sys, os, platform, subprocess, win32event, win32api, win32gui, win32con, winerror
+
+# === ForceCloseApp ===
+WTS_SESSION_LOCK = 0x7
+WTS_SESSION_UNLOCK = 0x8
+
+def wndProc(hwnd, msg, wparam, lparam) -> bool :
+	"""Callback function to listen for Windows events."""
+	if msg == win32con.WM_WTSSESSION_CHANGE:
+		if wparam == WTS_SESSION_LOCK:
+			print("Windows Locked: Force Quitting App")
+			# Force quit the application
+			QCoreApplication.quit()
+	return True
 
 
 class ClientViewWindow(QWidget):
@@ -66,6 +79,15 @@ class ClientViewWindow(QWidget):
 
 		self.load_data()
 		self.setLayout(self.layout) # Init main Layout
+		
+		# Register to receive session change notifications
+		hwnd = self.winId()
+		# Ensure win32gui can handle this handler
+		try:
+			from win32gui import WTSRegisterSessionNotification, NOTIFY_FOR_THIS_SESSION
+			WTSRegisterSessionNotification(hwnd, NOTIFY_FOR_THIS_SESSION)
+		except Exception as e:
+			print(f"Failed to register session notification: {e}")
 
 
 	def load_data(self):
@@ -514,4 +536,5 @@ if __name__ == "__main__":
 			app.setFont(app_font)
 			window = ScaleReportApp(login.loged_user)
 			window.show()
+			win32gui.PumpMessages = wndProc
 			sys.exit(app.exec_())
