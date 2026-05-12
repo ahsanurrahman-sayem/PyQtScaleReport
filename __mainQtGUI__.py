@@ -310,10 +310,10 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 	def initViewTab(self):
 		layout = QtWidgets.QVBoxLayout()
 		self.tree = QtWidgets.QTableWidget()
-		self.tree.setColumnCount(8)
+		self.tree.setColumnCount(9)
 		self.tree.setRowCount(2)
 		self.tree.setWordWrap(True)
-		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date"])
+		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date","Operated By"])
 		self.tree.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 		self.tree.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 		self.tree.cellDoubleClicked.connect(self.view_pdf_by_id)
@@ -343,6 +343,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			self.tree.setItem(row_idx, 5, centerItem(str(int(item.net_weight))))
 			self.tree.setItem(row_idx, 6, centerItem(item.load_weight_date))
 			self.tree.setItem(row_idx, 7, centerItem(item.unload_weight_date))
+			self.tree.setItem(row_idx, 8, centerItem(item.operator))
 
 		# Optional: center-align headers too
 		header = self.tree.horizontalHeader()
