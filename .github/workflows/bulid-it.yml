@@ -31,10 +31,10 @@ jobs:
           python -m pip install --verbose pyqt5 fpdf2 tabulate pyinstaller pywin32
           
       - name: Build CLI Executable
-        run: pyinstaller --onedir --console --name "ScaleReportCLI" --add-data "assets/fonts;assets/fonts" --add-data "assets/imgs;assets/imgs" --icon="assets/imgs/favicon.ico" __mainCLI__.py
+        run: pyinstaller --onedir --console --name "ScaleReportCLI" --add-data "assets/fonts;assets/fonts" --add-data "assets/imgs;assets/imgs" --icon="assets/imgs/favicon.ico" __mainCLI__.py && ls
       - name: Build GUI Executable
         run: |
-          pyinstaller --onedir --windowed --name "ScaleReportGUI" --add-data "assets/fonts;assets/fonts" --add-data "assets/imgs;assets/imgs" --icon="assets/imgs/favicon.ico" __mainQtGUI__.py
+          pyinstaller --onedir --windowed --name "ScaleReportGUI" --add-data "assets/fonts;assets/fonts" --add-data "assets/imgs;assets/imgs" --icon="assets/imgs/favicon.ico" __mainQtGUI__.py && ls
 
       - name: Rename Artifacts with OS Suffix
         run: |
@@ -47,8 +47,8 @@ jobs:
 
           mkdir release
           if [[ "$OS_NAME" == windows-* ]]; then
-            mv dist/ScaleReportCLI release/ScaleReportCLI-$SUFFIX
-            mv dist/ScaleReportGUI release/ScaleReportGUI-$SUFFIX
+            mv dist\ScaleReportCLI release\ScaleReportCLI-$SUFFIX
+            mv dist\ScaleReportGUI release\ScaleReportGUI-$SUFFIX
           else
             mv dist/ScaleReportCLI release/ScaleReportCLI-$SUFFIX
             mv dist/ScaleReportGUI release/ScaleReportGUI-$SUFFIX
@@ -62,7 +62,7 @@ jobs:
         with:
           tag_name: executables
           name: "Release Executables"
-          files: release/*
+          files: release\*
           overwrite: true   # replaces existing assets by name
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
