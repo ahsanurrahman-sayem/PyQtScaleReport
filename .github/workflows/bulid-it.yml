@@ -42,13 +42,13 @@ jobs:
           case "$OS_NAME" in
             ubuntu-*) SUFFIX="ubuntu" ;;
             macos-*) SUFFIX="macos" ;;
-            windows-*) SUFFIX="windows.exe" ;;
+            windows-*) SUFFIX="windows" ;;
           esac
 
           mkdir release
           if [[ "$OS_NAME" == windows-* ]]; then
-            mv dist/ScaleReportCLI.exe release/ScaleReportCLI-$SUFFIX
-            mv dist/ScaleReportGUI.exe release/ScaleReportGUI-$SUFFIX
+            mv dist/ScaleReportCLI release/ScaleReportCLI-$SUFFIX
+            mv dist/ScaleReportGUI release/ScaleReportGUI-$SUFFIX
           else
             mv dist/ScaleReportCLI release/ScaleReportCLI-$SUFFIX
             mv dist/ScaleReportGUI release/ScaleReportGUI-$SUFFIX
