@@ -1,1 +1,0 @@
-from .gen_report_api import gen_report

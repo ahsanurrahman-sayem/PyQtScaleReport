@@ -1,6 +1,6 @@
 #from models import WeightData,Vehicle
 
-from db import (
+from core.db import (
 	getWeightById, 
 	addNewWeight, 
 	getAllWeights, 
@@ -11,13 +11,15 @@ from db import (
 	getItems,
 	ARSTable
 )
+from core.db import models
 
-from pdf_generator import generate_pdf
+from core.gen_reportAPI import gen_report
 
-from utils import getNow, openFile
-from validator import isZero, isDigit
+from core.support.timeUtils import getNow
+from core.support.utils import openFile
+from core.support.validator import isZero, isDigit
 
-from core import UserAuth, models
+from core.app import UserAuthApp
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QEvent 

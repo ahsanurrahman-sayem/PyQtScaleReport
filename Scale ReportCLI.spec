@@ -5,7 +5,7 @@ a = Analysis(
     ['__mainCLI__.py'],
     pathex=[],
     binaries=[],
-    datas=[('favicon.ico', '.')],
+    datas=[('favicon.ico', 'assets/imgs')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

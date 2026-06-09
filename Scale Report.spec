@@ -5,7 +5,7 @@ a = Analysis(
     ['__mainQtGUI__.py'],
     pathex=[],
     binaries=[],
-    datas=[('fonts', 'fonts'), ('favicon.ico', '.')],
+    datas=[('fonts', 'fonts'), ('favicon.ico', 'assets/mgs')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
