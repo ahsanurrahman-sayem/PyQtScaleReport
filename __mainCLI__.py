@@ -12,7 +12,8 @@ from cli_handler import (
 	edit_report,
 	modify_id,
 	delete_report,
-	add_client
+	add_client,
+	del_last_report
 )
 
 def cl():
@@ -80,7 +81,11 @@ def main():
 				report_id = input("Enter report ID to delete: ")
 				if report_id.isdigit():
 					delete_report(int(report_id))
-					#view_all_reports()
+					view_all_reports()
+				else:
+					view_all_reports()
+					del_last_report()
+
 			elif choice == '6':
 				report_id = input("Enter current id:")
 				new_id = input("Enter modified id:")

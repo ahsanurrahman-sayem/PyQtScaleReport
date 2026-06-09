@@ -1,44 +1,117 @@
-; --- Scale Report Installer Script ---
-; Created for Ahsanur Rahman
+; debtor.iss — Inno Setup script for DebtorManager
+; Tested with Inno Setup 6.x
+;
+; Run from Inno Setup Compiler GUI or:
+;   ISCC.exe debtor.iss
+
+#define AppName      "Scale Report"
+#define AppVersion   "2.6.2"
+#define AppPublisher "Ahsanur Rahman"
+#define AppExeName   "Scale Report.exe"
+#define AppId        "{{A3F2C1D4-89B0-4E7A-9C3F-1D2E5B6A7F8C}"
+#define SourceDir    "dist\Scale Report.exe"
+
 
 [Setup]
-AppName=Scale Report
-AppVersion=2.6.2
-AppPublisher=Ahsanur Rahman
-DefaultDirName={pf}\Scale Report
-DefaultGroupName=Scale Report
-UninstallDisplayIcon={app}\Scale Report.exe
-OutputDir=dist
-OutputBaseFilename=ScaleReportSetup
-Compression=lzma
-SolidCompression=yes
-PrivilegesRequired=admin
-SetupIconFile=favicon.ico
-WizardStyle=modern
+AppId={#AppId}
+AppName={#AppName}
+AppVersion={#AppVersion}
+AppPublisher={#AppPublisher}
+AppPublisherURL=https://ahsanurrahman-sayem.github.io/ars
+AppSupportURL=https://github.com/ahsanurrahman-sayem/PyQtScaleReport
+AppUpdatesURL=https://github.com/ahsanurrahman-sayem/PyQtScaleReport
+
+; Install to Program Files by default
+DefaultDirName={autopf}\{#AppName}
+DefaultGroupName={#AppName}
+
+
+; Allow user to choose install dir
 DisableDirPage=no
-DisableProgramGroupPage=no
-AllowCancelDuringInstall=yes
+DisableProgramGroupPage=yes
+
+; Compression
+Compression=lzma2/ultra64
+SolidCompression=yes
+InternalCompressLevel=ultra64
+
+; Output
+OutputDir=installer
+OutputBaseFilename={#AppNAme}_Setup_v{#AppVersion}
+
+
+; Require admin so it can write to Program Files
+PrivilegesRequired=admin
+PrivilegesRequiredOverridesAllowed=dialog
+
+; Windows version gate: Vista SP1+ (0x06000100)
+;MinVersion=6.0.6001
+
+; GUI appearance
+WizardStyle=modern
+SetupIconFile=favicon.ico
+UninstallDisplayIcon={app}\{#AppExeName}
+ShowLanguageDialog=no
+
+; Prevent running multiple instances of the installer
+AppMutex=DebtorManagerSetupMutex
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[Files]
-Source: "dist\Scale Report.exe"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "weights.db"; DestDir: "{app}"; Flags: ignoreversion
-; Optional: include any additional files (like database, icons, or fonts)
-; Example:
-; Source: "dist\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs
+[Tasks]
+Name: "desktopicon";    Description: "Create a &desktop shortcut";    GroupDescription: "Shortcuts:"; Flags: checkedonce
+Name: "startmenuicon";  Description: "Create a &Start Menu shortcut"; GroupDescription: "Shortcuts:"; Flags: checkedonce
 
-[Dirs]
-Name: "{commonappdata}\ScaleReport"; Permissions: users-full
+[Files]
+; The entire PyInstaller onedir output
+Source: "{#SourceDir}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
 
 [Icons]
-Name: "{group}\Scale Report"; Filename: "{app}\Scale Report.exe"
-Name: "{commondesktop}\Scale Report"; Filename: "{app}\Scale Report.exe"
+; Start Menu
+Name: "{group}\{#AppName}";          Filename: "{app}\{#AppExeName}"; Tasks: startmenuicon
+Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}";      Tasks: startmenuicon
+
+; Desktop
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\Scale Report.exe"; Description: "Launch Scale Report after installation"; Flags: nowait postinstall skipifsilent
+; Offer to launch app right after install
+Filename: "{app}\{#AppExeName}"; \
+  Description: "Launch {#AppName} now"; \
+  Flags: nowait postinstall skipifsilent
+
+[UninstallRun]
+; Nothing special — DB lives in %APPDATA%\DebtorManager (preserved on uninstall)
 
 [UninstallDelete]
-; Clean up any leftover files
-Type: filesandordirs; Name: "{app}\data"
+; Only remove app files, NOT the user's database in %APPDATA%
+Type: filesandordirs; Name: "{app}"
+
+[Code]
+// ── Pre-install: kill running instance ──────────────────────────────────────
+function InitializeSetup(): Boolean;
+var
+  ResultCode: Integer;
+begin
+  // Attempt to close a running DebtorManager gracefully
+  Exec('taskkill.exe', '/F /IM DebtorManager.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Result := True;
+end;
+
+// ── Post-uninstall notice about user data ───────────────────────────────────
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    MsgBox(
+      'Debtor Manager has been uninstalled.' + #13#10 + #13#10 +
+      'Your database file is preserved at:' + #13#10 +
+      '%APPDATA%\DebtorManager\debtor.db' + #13#10 + #13#10 +
+      'You can delete it manually if you no longer need it.',
+      mbInformation,
+      MB_OK
+    );
+  end;
+end;

@@ -35,8 +35,8 @@ def inject(id:int,weight_id:int):
 		conn.commit()
 
 
-def getConnection():
-	conn = sqlite3.connect(getSysDbPath(cwd=False))
+def getConnection(cwd=False):
+	conn = sqlite3.connect(getSysDbPath(cwd))
 	cursor = conn.cursor()
 	cursor.execute("""
 	CREATE TABLE IF NOT EXISTS weights (
@@ -64,9 +64,9 @@ def getConnection():
 def getAllWeights():
 	with getConnection() as conn:
 		cursor = conn.cursor()
-		cursor.execute("SELECT * FROM weights")
+		cursor.execute("SELECT * FROM weights ORDER BY rowid DESC LIMIT 20")
 		rows = cursor.fetchall()
-		return [WeightData(*row) for row in rows]
+		return [WeightData(*row) for row in rows][::-1]
 
 def getAllWeightsOfRange(start_date, end_date):
 	with getConnection() as conn:

@@ -1,4 +1,5 @@
-from models import WeightData,Vehicle
+#from models import WeightData,Vehicle
+
 from db import (
 	getWeightById, 
 	addNewWeight, 
@@ -10,28 +11,19 @@ from db import (
 	getItems,
 	ARSTable
 )
-import models
+
 from pdf_generator import generate_pdf
+
 from utils import getNow, openFile
 from validator import isZero, isDigit
 
+from core import UserAuth, models
+
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QEvent 
 from PyQt5.QtWidgets import QMessageBox, QWidget
 
 import sys, os, platform, subprocess, win32event, win32api, win32gui, win32con, winerror
-
-# === ForceCloseApp ===
-WTS_SESSION_LOCK = 0x7
-WTS_SESSION_UNLOCK = 0x8
-
-def wndProc(hwnd, msg, wparam, lparam) -> bool :
-	"""Callback function to listen for Windows events."""
-	if msg == win32con.WM_WTSSESSION_CHANGE:
-		if wparam == WTS_SESSION_LOCK:
-			print("Windows Locked: Force Quitting App")
-			# Force quit the application
-			QCoreApplication.quit()
-	return True
 
 
 class ClientViewWindow(QWidget):
@@ -49,17 +41,11 @@ class ClientViewWindow(QWidget):
 		self.layout = QtWidgets.QVBoxLayout()
 		self.inputLayout = QtWidgets.QGridLayout()
 		self.client_input = QtWidgets.QComboBox(self)
-		#self.client_input1 = QtWidgets.QComboBox(self)
 
 		self.client_input.addItems(c.name for c in ARSTable("clients",models.Client).getDatas())
 		self.client_input.setCompleter(QtWidgets.QCompleter(c.name for c in ARSTable("clients",models.Client).getDatas()))
 		self.client_input.setEditable(False)
 		self.inputLayout.addWidget(self.client_input,0,0)
-
-		#self.client_input1.addItems(c.name for c in ARSTable("clients",models.Client).getDatas())
-		#self.client_input1.setCompleter(QtWidgets.QCompleter(c.name for c in ARSTable("clients",models.Client).getDatas()))
-		#self.client_input1.setEditable(False)
-		#self.inputLayout.addWidget(self.client_input1,0,1)
 
 		refresh_btn = QtWidgets.QPushButton("🔄 Refresh")
 		refresh_btn.clicked.connect(self.load_data)
@@ -68,10 +54,10 @@ class ClientViewWindow(QWidget):
 		self.layout.addLayout(self.inputLayout)
 
 		self.tree = QtWidgets.QTableWidget()
-		self.tree.setColumnCount(8)
+		self.tree.setColumnCount(9)
 		self.tree.setRowCount(2)
 		self.tree.setWordWrap(True)
-		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date"])
+		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date","Operated By"])
 		self.tree.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 		self.tree.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 		self.tree.cellDoubleClicked.connect(self.view_pdf_by_id)
@@ -80,14 +66,6 @@ class ClientViewWindow(QWidget):
 		self.load_data()
 		self.setLayout(self.layout) # Init main Layout
 		
-		# Register to receive session change notifications
-		hwnd = self.winId()
-		# Ensure win32gui can handle this handler
-		try:
-			from win32gui import WTSRegisterSessionNotification, NOTIFY_FOR_THIS_SESSION
-			WTSRegisterSessionNotification(hwnd, NOTIFY_FOR_THIS_SESSION)
-		except Exception as e:
-			print(f"Failed to register session notification: {e}")
 
 
 	def load_data(self):
@@ -107,6 +85,8 @@ class ClientViewWindow(QWidget):
 			self.tree.setItem(row_idx, 5, centerItem(str(int(item.net_weight))))
 			self.tree.setItem(row_idx, 6, centerItem(item.load_weight_date))
 			self.tree.setItem(row_idx, 7, centerItem(item.unload_weight_date))
+			self.tree.setItem(row_idx, 8, centerItem(item.operator))
+
 
 		# Optional: center-align headers too
 		header = self.tree.horizontalHeader()
@@ -124,71 +104,7 @@ class ClientViewWindow(QWidget):
 			openFile(fp)
 
 # -----------------------------------------------------------------------------------------------------------
-# -----------------------------------------------------------------------------------------------------------
 
-
-class UserAuth(QtWidgets.QDialog):
-	def __init__(self, parent = None):
-		super().__init__(parent)
-		if getattr(sys, 'frozen', False):
-			ico_path = os.path.join(sys._MEIPASS, "favicon.ico")
-		else:
-			ico_path = "favicon.ico"
-
-		self.setWindowIcon(QtGui.QIcon(ico_path))
-
-		self.setWindowTitle("User Authentication")
-		self.setFixedSize(350,250)
-
-		self.operators = [[user.name,user.password] for user in ARSTable("users",models.User).getDatas()]
-		#print(self.operators,"form db")
-
-		self.operator_names = [operator[0] for operator in self.operators]
-
-		self.root = QtWidgets.QFormLayout(self)
-		self.user_name_input = QtWidgets.QComboBox(self)
-		self.completer = QtWidgets.QCompleter(self.operator_names)
-		self.user_pass_input = QtWidgets.QLineEdit(self)
-
-		self.user_name_input.setEditable(False)
-		self.user_name_input.addItems(self.operator_names)
-		self.user_name_input.setCurrentText("")
-		self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-		self.user_name_input.setCompleter(self.completer)
-
-		self.user_pass_input.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-		self.user_pass_input.setPlaceholderText("Enter Password...")
-		self.user_pass_input.returnPressed.connect(self.auth)
-
-		self.submit_btn = QtWidgets.QPushButton("Login")
-		self.submit_btn.clicked.connect(self.auth)
-
-		self.user_name_input.setFixedHeight(40)
-		self.user_pass_input.setFixedHeight(40)
-		self.root.addRow("User Name",self.user_name_input)
-		self.root.addRow("Password",self.user_pass_input)
-		self.root.addRow(self.submit_btn)
-		self.user_pass_input.setFocus()
-
-	def auth(self):
-		if self.checkUser(self.user_name_input.currentText(),self.user_pass_input.text()) == True:	
-			self.loged_user = self.user_name_input.currentText()
-			self.accept()
-		elif self.user_pass_input.text() == "@11":
-			self.loged_user = "SAYEM"
-			self.accept()
-		else:
-			QtWidgets.QMessageBox.warning(self,"Credential missmatch","Please Login with the right password.")
-			self.user_pass_input.clear()
-			print("rejected.")
-
-	def checkUser(self,user_name,p):
-		for user in ARSTable("users",models.User).getDatas():
-			if user.id and user_name == user.name:
-				if p == user.password:
-					return True
-				else:
-					return False
 
 
 class ScaleReportApp(QtWidgets.QMainWindow):
@@ -285,6 +201,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 	def open_clientView(self):
 		self.m = ClientViewWindow()
 		self.m.show()
+
 	def initSearchTab(self):
 		layout = QtWidgets.QFormLayout()
 
@@ -376,6 +293,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 
 	def getFieldValue(self,value):
 	#return the value from QtEntryField Object
+	#Smart getText method to get values from Input Boxes.
 		entry = self.create_fields[value]
 		if isinstance(entry, QtWidgets.QLineEdit):
 			return entry.text().strip()
@@ -395,7 +313,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 				
 
 	def filedValue(self,value:QtWidgets.QLineEdit):
-	#selects a field object and return text from it
+	#selects a field object and return text from QLineedit widget
 		return value.text.strip()
 
 	def focusNextEmptyEntry(self):
@@ -529,12 +447,10 @@ if __name__ == "__main__":
 			return os.path.join(base_path, relative_path)
 
 		if login.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-
 			font_id = QtGui.QFontDatabase.addApplicationFont(resource_path("fonts/jetbrainsfont.ttf"))
 			font_family = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
 			app_font = QtGui.QFont(font_family,10)
 			app.setFont(app_font)
 			window = ScaleReportApp(login.loged_user)
 			window.show()
-			win32gui.PumpMessages = wndProc
 			sys.exit(app.exec_())

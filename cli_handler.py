@@ -14,7 +14,8 @@ from db import (
 	addUser,
 	addItem,
 	getUsers,
-	getItems
+	getItems,
+	getLastRowId
 )
 from validator import isZero, isEmpty
 
@@ -93,6 +94,15 @@ def search_report(weight_id: int):
 	open_pdf(fp)
 	print("✅ Report generated and opened:", filename)
 
+def del_last_report():
+	record = getLastRowId()
+	if not record:
+		print("⚠ No records found.")
+		return
+	print(f"Deleting Record ID: {record}")
+	view_a_report(record)
+	delete_report(record)
+	
 
 def view_all_reports():
 	records = getAllWeights()
