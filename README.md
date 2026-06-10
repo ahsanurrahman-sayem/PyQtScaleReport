@@ -1,5 +1,6 @@
 [![Build and Release Executables](https://github.com/ahsanurrahman-sayem/PyQtScaleReport/actions/workflows/bulid-it.yml/badge.svg?branch=main)](https://github.com/ahsanurrahman-sayem/PyQtScaleReport/actions/workflows/bulid-it.yml)
 
-** Ignore the failing status, and use the installer from the release section or check the directory named "installer". Thank you!
+**Ignore the failing status, and use the installers available in "installer" directory. Thank you!**
 
-<a href="https://github.com/ahsanurrahman-sayem/PyQtScaleReport/tree/main/installer">![This is an alt text.](/assets/imgs/fvicon.ico "This is a sample image.")</a>
+### Install by clicking onto the image bellow ...
+<a href="https://github.com/ahsanurrahman-sayem/PyQtScaleReport/tree/main/installer"><img src="assets/imgs/favicon.ico"></a>
