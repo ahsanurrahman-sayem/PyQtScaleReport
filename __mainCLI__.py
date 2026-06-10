@@ -1,6 +1,6 @@
 from os import system
 import argparse
-from cli_handler import (
+from core.cli import (
 	create_report,
 	search_report,
 	view_all_reports,

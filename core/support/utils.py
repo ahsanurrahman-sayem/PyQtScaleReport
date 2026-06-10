@@ -1,3 +1,5 @@
+import os, platform, subprocess
+
 def openFile(fp):
         #Open files using this method
     if platform.system() == "Windows" or platform.system == "nt":

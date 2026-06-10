@@ -9,7 +9,7 @@
 #define AppPublisher "Ahsanur Rahman"
 #define AppExeName   "Scale ReportCLI.exe"
 #define AppId        "{{A3F2C1D4-89B0-4E7A-9C3F-1D2E5B6A7F8D}"
-#define SourceDir    "dist\Scale ReportCLI.exe"
+#define SourceDir    "dist\ScaleReportCLI"
 
 
 [Setup]
@@ -49,7 +49,7 @@ PrivilegesRequiredOverridesAllowed=dialog
 
 ; GUI appearance
 WizardStyle=modern
-SetupIconFile=favicon.ico
+SetupIconFile=assets\imgs\favicon.ico
 UninstallDisplayIcon={app}\{#AppExeName}
 ShowLanguageDialog=no
 

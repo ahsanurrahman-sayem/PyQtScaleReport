@@ -1,6 +1,7 @@
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 from os import sys
+import os
 from core.db import ARSTable
 import core.db.models as models
 
@@ -9,11 +10,12 @@ class UserAuthApp(QtWidgets.QDialog):
 	def __init__(self, parent = None):
 		super().__init__(parent)
 		if getattr(sys, 'frozen', False):
-			ico_path = os.path.join(sys._MEIPASS, "favicon.ico")
+			ico_path = os.path.join(sys._MEIPASS, "assets","imgs","favicon.ico")
+			print(f"from sys: {ico_path}")
 		else:
-			ico_path = "favicon.ico"
+			ico_path = "assets/imgs/favicon.ico"
 
-		print(ico_path)
+		print(f"from hardcoading: {ico_path}")
 		self.setWindowIcon(QtGui.QIcon(ico_path))
 
 		self.setWindowTitle("User Authentication")

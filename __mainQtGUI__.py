@@ -12,6 +12,7 @@ from core.db import (
 	ARSTable
 )
 from core.db import models
+from core.db import WeightData
 
 from core.gen_reportAPI import gen_report
 
@@ -33,9 +34,9 @@ class ClientViewWindow(QWidget):
 		super().__init__()
 		self.setWindowTitle("Reports By Client Name")
 		if getattr(sys, 'frozen', False):
-			ico_path = os.path.join(sys._MEIPASS, "favicon.ico")
+			ico_path = os.path.join(sys._MEIPASS, "assets","imgs","favicon.ico")
 		else:
-			ico_path = "favicon.ico"
+			ico_path = "assets/imgs/favicon.ico"
 
 		self.setWindowIcon(QtGui.QIcon(ico_path))
 		self.setGeometry(100, 100, 1150, 390)
@@ -102,7 +103,7 @@ class ClientViewWindow(QWidget):
 		data = getWeightById(int(weight_id))
 		if data:
 			filename = f"{data.client_name}_weight_report_{data.id}.pdf"
-			fp = generate_pdf(data.__dict__, filename)
+			fp = gen_report(data.__dict__, filename)
 			openFile(fp)
 
 # -----------------------------------------------------------------------------------------------------------
@@ -114,9 +115,9 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		super().__init__()
 		self.setWindowTitle("Scale Weight Report")
 		if getattr(sys, 'frozen', False):
-			ico_path = os.path.join(sys._MEIPASS, "favicon.ico")
+			ico_path = os.path.join(sys._MEIPASS, "assets","imgs","favicon.ico")
 		else:
-			ico_path = "favicon.ico"
+			ico_path = "assets/imgs/favicon.ico"
 		self.current_user = user_name
 		self.setWindowIcon(QtGui.QIcon(ico_path))
 		self.setGeometry(100, 100, 1150, 390)
@@ -434,7 +435,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		data = getWeightById(int(weight_id))
 		if data:
 			filename = f"{data.client_name}_weight_report_{data.id}.pdf"
-			fp = generate_pdf(data.__dict__, filename)
+			fp = gen_report(data.__dict__, filename)
 			openFile(fp)
 
 if __name__ == "__main__":
@@ -443,13 +444,13 @@ if __name__ == "__main__":
 		sys.exit(0)
 	else:
 		app = QtWidgets.QApplication(sys.argv)
-		login = UserAuth()
+		login = UserAuthApp()
 		def resource_path(relative_path):
 			base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
 			return os.path.join(base_path, relative_path)
 
 		if login.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-			font_id = QtGui.QFontDatabase.addApplicationFont(resource_path("fonts/jetbrainsfont.ttf"))
+			font_id = QtGui.QFontDatabase.addApplicationFont(resource_path("assets/fonts/jetbrainsfont.ttf"))
 			font_family = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
 			app_font = QtGui.QFont(font_family,10)
 			app.setFont(app_font)
