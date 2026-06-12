@@ -29,14 +29,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install --verbose pyqt5 fpdf2 tabulate pyinstaller pywin32
-
-      - name: Build CLI Executable
-        run: |
-          pyinstaller --onefile --name "ScaleReportCLI" --add-data "fonts:fonts" --icon favicon.ico __mainCLI__.py
-
+          
       - name: Build GUI Executable
         run: |
-          pyinstaller --onefile --name "ScaleReportGUI" --add-data "fonts:fonts" --icon favicon.ico __mainQtGUI__.py
+          pyinstaller --onedir --windowed --name "ScaleReportGUI" --add-data "assets/fonts;assets/fonts" --add-data "assets/imgs;assets/imgs" --icon="assets/imgs/favicon.ico" __mainQtGUI__.py && ls
 
       - name: Rename Artifacts with OS Suffix
         run: |
@@ -44,26 +40,25 @@ jobs:
           case "$OS_NAME" in
             ubuntu-*) SUFFIX="ubuntu" ;;
             macos-*) SUFFIX="macos" ;;
-            windows-*) SUFFIX="windows.exe" ;;
+            windows-*) SUFFIX="windows" ;;
           esac
 
           mkdir release
           if [[ "$OS_NAME" == windows-* ]]; then
-            mv dist/ScaleReportCLI.exe release/ScaleReportCLI-$SUFFIX
-            mv dist/ScaleReportGUI.exe release/ScaleReportGUI-$SUFFIX
+            mv dist\ScaleReportGUI release\ScaleReportGUI-$SUFFIX
           else
-            mv dist/ScaleReportCLI release/ScaleReportCLI-$SUFFIX
             mv dist/ScaleReportGUI release/ScaleReportGUI-$SUFFIX
           fi
+        shell: bash
 
 
 
       - name: Upload new assets to "executables" release
-  uses: softprops/action-gh-release@v2
-  with:
-    tag_name: executables
-    name: "Executables Release"
-    files: release/*
-    overwrite: true   # replaces existing assets by name
- env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: GUI
+          name: "Release Executables"
+          files: release\*
+          overwrite: true   # replaces existing assets by name
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
