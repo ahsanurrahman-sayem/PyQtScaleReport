@@ -41,11 +41,10 @@ def main():
 	login = UserAuthApp()
 	if login.exec() != QtWidgets.QDialog.DialogCode.Accepted:
 	    sys.exit(0)
-    user = login.loged_user
 
-	#user = "SAYEM"  # placeholder
+#    user = "SAYEM"  # placeholder
 
-	window = ScaleReportApp(user)
+	window = ScaleReportApp(login.loged_user)
 	window.show()
 	sys.exit(app.exec_())
 

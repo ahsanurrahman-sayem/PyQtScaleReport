@@ -6,14 +6,17 @@ from ui.components import (
 
 
 # ── Stub imports — replace with your real core imports ──────────────────────
-# from core.db import ARSTable, WeightData, addNewWeight, models
-# from core.gen_reportAPI import gen_report
-# from core.support.utils import openFile
-# from core.support.validator import isZero, isDigit
+from core.db import ARSTable, WeightData, addNewWeight, models
+from core.gen_reportAPI import gen_report
+from core.support.utils import openFile
+from core.support.validator import isZero, isDigit
 
-def _stub_clients():	return ["ROMJAN TRADERS", "HAFIZUR RAHMAN", "AMIRATH LUBE", "CITY LUBE", "FOOD", "ANY"]
-def _stub_vehicles():	return ["DHK-1234", "CHT-5678", "SYL-9012"]
-def _stub_items():	return ["WOOD", "M/S. ROD", "SOYABEAN", "RICE", "LUBRICANT", "OIL", "TAR", "WHEAT", "CORN", "TEEN", "SCRAP", "HAY", "PLASTIC", "BUNDLE"]
+def _stub_clients():
+    return ["ROMJAN TRADERS", "HAFIZUR RAHMAN", "AMIRATH LUBE", "CITY LUBE", "FOOD", "ANY"]
+def _stub_vehicles():
+    return ["DHK-1234", "CHT-5678", "SYL-9012"]
+def _stub_items():
+    return ["WOOD", "M/S. ROD", "SOYABEAN", "RICE", "LUBRICANT", "OIL", "TAR", "WHEAT", "CORN", "TEEN", "SCRAP", "HAY", "PLASTIC", "BUNDLE"]
 # ────────────────────────────────────────────────────────────────────────────
 
 
@@ -48,7 +51,7 @@ class CreateReportPage(QtWidgets.QWidget):
 			# (label_text,  field_key,       col, row, field_type, source_fn)
 			("Report ID",      "id",           0, 0, "line",  None),
 			("Operator",       "operator",     1, 0, "combo", lambda: [self.operator_name]),
-			("Client Name",    "client_name",  0, 1, "combo", _stub_clients),
+            ("Client Name",    "client_name",  0, 1, "combo", _stub_clients),
 			("Vehicle No",     "vehicle_no",   1, 1, "combo", _stub_vehicles),
 			("Item",           "item_name",    0, 2, "combo", _stub_items),
 			("Quantity",       "qty",          1, 2, "line",  None),

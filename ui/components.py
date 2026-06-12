@@ -29,11 +29,11 @@ def make_field(placeholder="", read_only=False) -> QtWidgets.QLineEdit:
 
 
 def make_combo(items=None, editable=True, placeholder="") -> QtWidgets.QComboBox:
-    combo = QtWidgets.QComboBox()
+	combo = QtWidgets.QComboBox()
 	combo.setEditable(editable)
 	if items:
 		combo.addItems(items)
-	combo.setCurrentText("")
+		combo.setCurrentText("")
 	if placeholder and editable:
 		combo.lineEdit().setPlaceholderText(placeholder)
 	return combo

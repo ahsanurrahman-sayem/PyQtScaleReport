@@ -25,10 +25,10 @@ class ByClientPage(QtWidgets.QWidget):
 
 		# ── Real client list (uncomment) ──────────────────
 		# from core.db import ARSTable, models
-		# client_names = [c.name for c in ARSTable("clients", models.Client).getDatas()]
+		#client_names = [c.name for c in ARSTable("clients", models.Client).getDatas()]
 		client_names = ["ROMJAN TRADERS", "HAFIZUR RAHMAN", "AMIRATH LUBE", "CITY LUBE", "FOOD", "ANY"]
 
-		self.client_combo = make_combo(client_names, editable=True, placeholder="Select or type a client…")
+		self.client_combo = make_combo(client_names, editable=False, placeholder="Select or type a client…")
 		apply_completer(self.client_combo, client_names)
 		self.client_combo.setFixedWidth(280)
 
@@ -112,4 +112,4 @@ def _stub_rows_for(client):
 		 "unload_weight": str(150+i*3), "net_weight": str(4350+i*12),
 		 "load_date": today, "unload_date": today, "operator": "SAYEM"}
 		for i in range(1, 6)
-	]
+        ]
