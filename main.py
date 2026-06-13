@@ -30,11 +30,14 @@ def main():
 	# Font setup
 	font_path = resource_path("assets/fonts/jetbrainsfont.ttf")
 	if os.path.exists(font_path):
+		print(f"{font_path}")
 		font_id = QtGui.QFontDatabase.addApplicationFont(font_path)
-		families = QtGui.QFontDatabase.applicationFontFamilies(font_id)
+		families = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
 		if families:
-			app.setFont(QtGui.QFont(families[0], 10))
+			app.setFont(QtGui.QFont(families, 10))
+			print("font id has been set")
 	else:
+		print("default font Segoe UI")
 		app.setFont(QtGui.QFont("Segoe UI", 10))
 
 	# Auth (uncomment when integrating)

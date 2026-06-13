@@ -12,11 +12,11 @@ from core.support.utils import openFile
 from core.support.validator import isZero, isDigit
 
 def _stub_clients():
-    return ["ROMJAN TRADERS", "HAFIZUR RAHMAN", "AMIRATH LUBE", "CITY LUBE", "FOOD", "ANY"]
+    return [client.name for client in ARSTable("clients",models.Client).getDatas()]
 def _stub_vehicles():
-    return ["DHK-1234", "CHT-5678", "SYL-9012"]
+    return  [vehicle.serial for vehicle in ARSTable("vehicle_serials",models.VehicleSerial).getDatas()]
 def _stub_items():
-    return ["WOOD", "M/S. ROD", "SOYABEAN", "RICE", "LUBRICANT", "OIL", "TAR", "WHEAT", "CORN", "TEEN", "SCRAP", "HAY", "PLASTIC", "BUNDLE"]
+    return [item.name for item in ARSTable("items",models.Item).getDatas()]
 # ────────────────────────────────────────────────────────────────────────────
 
 
@@ -49,19 +49,17 @@ class CreateReportPage(QtWidgets.QWidget):
 
 		field_defs = [
 			# (label_text,  field_key,       col, row, field_type, source_fn)
-			("Report ID",      "id",           0, 0, "line",  None),
-			("Operator",       "operator",     1, 0, "combo", lambda: [self.operator_name]),
-            ("Client Name",    "client_name",  0, 1, "combo", _stub_clients),
-			("Vehicle No",     "vehicle_no",   1, 1, "combo", _stub_vehicles),
+            ("Client Name",    "client_name",  0, 0, "combo", _stub_clients),
+			("Vehicle No",     "vehicle_no",   0, 1, "combo", _stub_vehicles),
 			("Item",           "item_name",    0, 2, "combo", _stub_items),
 			("Quantity",       "qty",          1, 2, "line",  None),
-			("Challan / LC No","challan_no",   0, 3, "line",  None),
+			("Challan / LC No","challan_no",   1, 1, "line",  None),
 			("Driver",         "driver",       1, 3, "line",  None),
-			("Address",        "address",      0, 4, "line",  None),
-			("Contact",        "contact",      1, 4, "line",  None),
-			("Load Weight (kg)",   "load_weight",   0, 5, "line", None),
-			("Unload Weight (kg)", "unload_weight", 1, 5, "line", None),
-		]
+			("Address",        "address",      1, 4, "line",  None),
+			("Contact",        "contact",      1, 0, "line",  None),
+			("Load Weight (kg)",   "load_weight",   0, 3, "line", None),
+			("Unload Weight (kg)", "unload_weight", 0, 4, "line", None),
+			]
 
 		for (label_text, key, col, row, ftype, src_fn) in field_defs:
 			lbl = QtWidgets.QLabel(label_text)
@@ -172,14 +170,14 @@ class CreateReportPage(QtWidgets.QWidget):
 			}
 
 			# ── Real submission (uncomment) ────────────────
-			# from core.db import WeightData, addNewWeight
-			# from core.support.validator import isZero
-			# weight_obj = WeightData(id=None, **data)
-			# new_id = addNewWeight(weight_obj)
-			# data["id"] = new_id
-			# fp = gen_report(data, f"{client}_weight_report_{new_id}.pdf")
-			# openFile(fp)
-			# ──────────────────────────────────────────────
+			from core.db import WeightData, addNewWeight
+			from core.support.validator import isZero
+			weight_obj = WeightData(id=None, **data)
+			new_id = addNewWeight(weight_obj)
+			data["id"] = new_id
+			fp = gen_report(data, f"{client}_weight_report_{new_id}.pdf")
+			openFile(fp)
+			#──────────────────────────────────────────────
 
 			QtWidgets.QMessageBox.information(
 				self, "Submitted",

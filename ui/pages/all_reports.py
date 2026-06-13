@@ -3,8 +3,10 @@ from ui.components import (
 	make_label, make_button, make_table,
 	center_table_item, stretch_table_headers
 )
+from core.db import ARSTable, models
+from core.db.models import WeightData
 
-HEADERS = ["ID", "Client", "Vehicle", "Load (kg)", "Unload (kg)", "Net (kg)", "Load Date", "Unload Date", "Operator"]
+HEADERS = ["ID", "Vehicle", "Client", "Load (kg)", "Unload (kg)", "Net (kg)", "Load Date", "Unload Date", "Operator"]
 
 
 class AllReportsPage(QtWidgets.QWidget):
@@ -45,24 +47,23 @@ class AllReportsPage(QtWidgets.QWidget):
 		self.table.setRowCount(0)
 
 		# ── Real data (uncomment) ─────────────────────────
-		# from core.db import ARSTable, models
-		# rows = ARSTable("weights", models.WeightData).getDatasWithLimit(limit=100)
+		rows = ARSTable("weights", models.WeightData).getDatasWithLimit(limit=100)
 		# ─────────────────────────────────────────────────
 
 		# Stub data for demonstration
-		rows = _stub_rows()
+		#rows = _stub_rows()
 
 		for idx, item in enumerate(rows):
 			self.table.insertRow(idx)
-			self.table.setItem(idx, 0, center_table_item(item["id"]))
-			self.table.setItem(idx, 1, center_table_item(item["client_name"]))
-			self.table.setItem(idx, 2, center_table_item(item["vehicle_no"]))
-			self.table.setItem(idx, 3, center_table_item(item["load_weight"]))
-			self.table.setItem(idx, 4, center_table_item(item["unload_weight"]))
-			self.table.setItem(idx, 5, center_table_item(item["net_weight"]))
-			self.table.setItem(idx, 6, center_table_item(item["load_date"]))
-			self.table.setItem(idx, 7, center_table_item(item["unload_date"]))
-			self.table.setItem(idx, 8, center_table_item(item["operator"]))
+			self.table.setItem(idx, 0, center_table_item(str(item.id)))
+			self.table.setItem(idx, 1, center_table_item(str(item.vehicle_no)))
+			self.table.setItem(idx, 2, center_table_item(str(item.client_name)))
+			self.table.setItem(idx, 3, center_table_item(str(item.load_weight)))
+			self.table.setItem(idx, 4, center_table_item(str(item.unload_weight)))
+			self.table.setItem(idx, 5, center_table_item(str(item.net_weight)))
+			self.table.setItem(idx, 6, center_table_item(str(item.load_weight_date)))
+			self.table.setItem(idx, 7, center_table_item(str(item.unload_weight_date)))
+			self.table.setItem(idx, 8, center_table_item(str(item.operator)))
 
 		stretch_table_headers(self.table)
 		count = self.table.rowCount()
@@ -75,13 +76,13 @@ class AllReportsPage(QtWidgets.QWidget):
 		wid = int(weight_id.text())
 
 		# ── Real PDF open (uncomment) ─────────────────────
-		# from core.db import getWeightById
-		# from core.gen_reportAPI import gen_report
-		# from core.support.utils import openFile
-		# data = getWeightById(wid)
-		# if data:
-		#     fp = gen_report(data.__dict__, f"{data.client_name}_weight_report_{wid}.pdf")
-		#     openFile(fp)
+		from core.db import getWeightById
+		from core.gen_reportAPI import gen_report
+		from core.support.utils import openFile
+		data = getWeightById(wid)
+		if data:
+		    fp = gen_report(data.__dict__, f"{data.client_name}_weight_report_{wid}.pdf")
+		    openFile(fp)
 		# ─────────────────────────────────────────────────
 		QtWidgets.QMessageBox.information(self, "Open PDF", f"Would open PDF for report ID {wid}")
 

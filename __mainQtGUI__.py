@@ -1,5 +1,3 @@
-#from models import WeightData,Vehicle
-
 from core.db import (
 	getWeightById, 
 	addNewWeight, 
@@ -20,93 +18,13 @@ from core.support.timeUtils import getNow
 from core.support.utils import openFile
 from core.support.validator import isZero, isDigit
 
-from core.app import UserAuthApp
+from core.app import UserAuthApp, ClientViewApp
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QEvent 
 from PyQt5.QtWidgets import QMessageBox, QWidget
 
 import sys, os, platform, subprocess, win32event, win32api, win32gui, win32con, winerror
-
-
-class ClientViewWindow(QWidget):
-	def __init__(self):
-		super().__init__()
-		self.setWindowTitle("Reports By Client Name")
-		if getattr(sys, 'frozen', False):
-			ico_path = os.path.join(sys._MEIPASS, "assets","imgs","favicon.ico")
-		else:
-			ico_path = "assets/imgs/favicon.ico"
-
-		self.setWindowIcon(QtGui.QIcon(ico_path))
-		self.setGeometry(100, 100, 1150, 390)
-
-		self.layout = QtWidgets.QVBoxLayout()
-		self.inputLayout = QtWidgets.QGridLayout()
-		self.client_input = QtWidgets.QComboBox(self)
-
-		self.client_input.addItems(c.name for c in ARSTable("clients",models.Client).getDatas())
-		self.client_input.setCompleter(QtWidgets.QCompleter(c.name for c in ARSTable("clients",models.Client).getDatas()))
-		self.client_input.setEditable(False)
-		self.inputLayout.addWidget(self.client_input,0,0)
-
-		refresh_btn = QtWidgets.QPushButton("🔄 Refresh")
-		refresh_btn.clicked.connect(self.load_data)
-		self.inputLayout.addWidget(refresh_btn,1,0)
-
-		self.layout.addLayout(self.inputLayout)
-
-		self.tree = QtWidgets.QTableWidget()
-		self.tree.setColumnCount(9)
-		self.tree.setRowCount(2)
-		self.tree.setWordWrap(True)
-		self.tree.setHorizontalHeaderLabels(["ID", "Client", "Vehicle", "Load", "Unload", "Net", "Load weight date","Unload weight date","Operated By"])
-		self.tree.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-		self.tree.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-		self.tree.cellDoubleClicked.connect(self.view_pdf_by_id)
-		self.layout.addWidget(self.tree)
-
-		self.load_data()
-		self.setLayout(self.layout) # Init main Layout
-		
-
-
-	def load_data(self):
-		def centerItem(text):
-			item = QtWidgets.QTableWidgetItem(text)
-			item.setTextAlignment(QtCore.Qt.AlignCenter)
-			return item
-		self.tree.setRowCount(0)
-		self.tree.setWordWrap(True)
-		for row_idx, item in enumerate(ARSTable("weights",models.WeightData).getDatasWithKey(f"client_name = '{self.client_input.currentText()}'",limit=100)):
-			self.tree.insertRow(row_idx)
-			self.tree.setItem(row_idx, 0, centerItem(str(item.id)))
-			self.tree.setItem(row_idx, 1, centerItem(item.client_name))
-			self.tree.setItem(row_idx, 2, centerItem(item.vehicle_no))
-			self.tree.setItem(row_idx, 3, centerItem(str(int(item.load_weight))))
-			self.tree.setItem(row_idx, 4, centerItem(str(int(item.unload_weight))))
-			self.tree.setItem(row_idx, 5, centerItem(str(int(item.net_weight))))
-			self.tree.setItem(row_idx, 6, centerItem(item.load_weight_date))
-			self.tree.setItem(row_idx, 7, centerItem(item.unload_weight_date))
-			self.tree.setItem(row_idx, 8, centerItem(item.operator))
-
-
-		# Optional: center-align headers too
-		header = self.tree.horizontalHeader()
-		for i in range(self.tree.columnCount()):
-			header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-			self.tree.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignCenter)
-		self.tree.update()
-
-	def view_pdf_by_id(self, row, _):
-		weight_id = self.tree.item(row, 0).text()
-		data = getWeightById(int(weight_id))
-		if data:
-			filename = f"{data.client_name}_weight_report_{data.id}.pdf"
-			fp = gen_report(data.__dict__, filename)
-			openFile(fp)
-
-# -----------------------------------------------------------------------------------------------------------
 
 
 
@@ -131,7 +49,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		self.view_tab = QtWidgets.QWidget()
 		self.modify_tab = QtWidgets.QWidget()
 		self.search_tab = QtWidgets.QWidget()
-		self.range_tab = QtWidgets.QWidget()
+		self.master_tab = QtWidgets.QWidget()
 
 		self.tabs.addTab(self.create_tab, "➕ Create New Weight Report")
 		self.tabs.addTab(self.view_tab, "📋 View All Weight Reports")
@@ -144,6 +62,22 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 		self.initSearchTab()
 
 
+		#----------------------------------------------------
+		# If i log into the app then this windowe will appear.
+		#----------------------------------------------------
+		if self.current_user == "SAYEM":
+			try:
+				from core.app import initMasterTab
+
+				self.tabs.addTab(self.master_tab, "SYSTEM CONTROLL")
+				self.initMasterTab = initMasterTab
+
+				self.initMasterTab()
+			except Exception as e:
+				print(e)
+
+	#endOf initUI()
+
 
 	def initCreateTab(self):
 		layout = QtWidgets.QFormLayout()
@@ -154,25 +88,20 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 			 "Contact", "Load Weight (kg)", "Unload Weight (kg)"
 		]
 
-		client_names = ["ROMJAN TRADERS","HAFIZUR RAHMAN","AMIRATH LUBE","CITY LUBE","FOOD", "ANY"]
-		operator_names = ["SOHEL", "RUBEL", "SAYEM"]
-		item_names = ["WOOD", "M/S. ROD","SOYABEAN","RICE","LUBRICANT","OIL","TAR","WHEAT","CORN","TEEN", "SCRAP", "HAY","PLASTIC","BUNDLE"]
-
 		for label in labels:
 			if label in ["Operator", "Client Name", "Item Name","Vehicle No"]:
 				entry = QtWidgets.QComboBox()
 				entry.setEditable(True)
 				if label == "Client Name":
 					completer_list = [client.name for client in ARSTable("clients",models.Client).getDatas()]
-					#entry.setPlaceholderText("Enter Client/Party name")
+
 				elif label == "Operator":
 					completer_list = [self.current_user]
 					entry.setCurrentText(self.current_user)
 					entry.setEditable(False)
-					#[client.name for client in ARSTable("client",models.Client).getDatas()]
+
 				elif label == "Vehicle No":
 					completer_list = [vehicle.serial for vehicle in ARSTable("vehicle_serials",models.VehicleSerial).getDatas()]
-					#entry.setPlaceholderText("Enter Vehicle number") "# Wont work due to Internal bug of pyqt5
 				elif label == "Item Name":
 					completer_list = [item.name for item in ARSTable("items",models.Item).getDatas()]
 				else:
@@ -202,7 +131,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 
 
 	def open_clientView(self):
-		self.m = ClientViewWindow()
+		self.m = ClientViewApp()
 		self.m.show()
 
 	def initSearchTab(self):
@@ -376,7 +305,7 @@ class ScaleReportApp(QtWidgets.QMainWindow):
 				weight_obj = WeightData(id=weight_id,**data)
 
 				data["id"]=addNewWeight(weight_obj)
-				fp = generate_pdf(data, f"{data['client_name']}_weight_report_{data['id']}.pdf")
+				fp = gen_report(data, f"{data['client_name']}_weight_report_{data['id']}.pdf")
 				
 				self.load_data()
 				self.clearFields()
@@ -454,6 +383,11 @@ if __name__ == "__main__":
 			font_family = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
 			app_font = QtGui.QFont(font_family,10)
 			app.setFont(app_font)
+
+			if login.loged_user == "SAYEM":
+				from core.app import initMasterTab
+				ScaleReportApp.method = initMasterTab
+
 			window = ScaleReportApp(login.loged_user)
 			window.show()
 			sys.exit(app.exec_())

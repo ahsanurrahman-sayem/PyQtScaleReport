@@ -44,16 +44,16 @@ class SearchReportPage(QtWidgets.QWidget):
 			return
 
 		# ── Real search (uncomment) ───────────────────────
-		# from core.db import getWeightById
-		# from core.gen_reportAPI import gen_report
-		# from core.support.utils import openFile
-		# data = getWeightById(int(raw))
-		# if not data:
-		#     self.result_label.setText("No record found for that ID.")
-		#     return
-		# fp = gen_report(data.__dict__, f"{data.client_name}_weight_report_{data.id}.pdf")
-		# openFile(fp)
-		# self.result_label.setText(f"Opened: {data.client_name} — ID {data.id}")
+		from core.db import getWeightById
+		from core.gen_reportAPI import gen_report
+		from core.support.utils import openFile
+		data = getWeightById(int(raw))
+		if not data:
+		    self.result_label.setText("No record found for that ID.")
+		    return
+		fp = gen_report(data.__dict__, f"{data.client_name}_weight_report_{data.id}.pdf")
+		openFile(fp)
+		self.result_label.setText(f"Opened: {data.client_name} — ID {data.id}")
 		# ─────────────────────────────────────────────────
 
 		self.result_label.setText(f"Would open PDF for report ID {raw}")

@@ -78,15 +78,15 @@ class EditReportPage(QtWidgets.QWidget):
 			return
 
 		# ── Real load (uncomment) ─────────────────────────
-		# from core.db import getWeightById
-		# data = getWeightById(int(raw))
-		# if not data:
-		#     QtWidgets.QMessageBox.information(self, "Not Found", "No record found for that ID.")
-		#     return
-		# self.current_id = data.id
-		# self.load_field.setText(str(int(data.load_weight)))
-		# self.unload_field.setText(str(int(data.unload_weight)))
-		# self.info_label.setText(f"Loaded: {data.client_name} | {data.vehicle_no}")
+		from core.db import getWeightById
+		data = getWeightById(int(raw))
+		if not data:
+		    QtWidgets.QMessageBox.information(self, "Not Found", "No record found for that ID.")
+		    return
+		self.current_id = data.id
+		self.load_field.setText(str(int(data.load_weight)))
+		self.unload_field.setText(str(int(data.unload_weight)))
+		self.info_label.setText(f"Loaded: {data.client_name} | {data.vehicle_no}")
 		# ─────────────────────────────────────────────────
 
 		# Stub
@@ -111,22 +111,22 @@ class EditReportPage(QtWidgets.QWidget):
 		net		= load - unload
 
 		# ── Real save (uncomment) ─────────────────────────
-		# from core.db import getWeightById, updateWeight
-		# from core.support.timeUtils import getNow
-		# from core.gen_reportAPI import gen_report
-		# from core.support.utils import openFile
-		# obj = getWeightById(self.current_id)
-		# if not obj:
-		#     QtWidgets.QMessageBox.critical(self, "Error", "Record not found.")
-		#     return
-		# obj.load_weight = str(load)
-		# obj.unload_weight = str(unload)
-		# obj.net_weight = str(net)
-		# obj.load_weight_date = obj.load_weight_date or getNow()
-		# obj.unload_weight_date = obj.unload_weight_date or getNow()
-		# updateWeight(obj)
-		# fp = gen_report(obj.__dict__, f"{obj.client_name}_weight_report_{obj.id}.pdf")
-		# openFile(fp)
+		from core.db import getWeightById, updateWeight
+		from core.support.timeUtils import getNow
+		from core.gen_reportAPI import gen_report
+		from core.support.utils import openFile
+		obj = getWeightById(self.current_id)
+		if not obj:
+		    QtWidgets.QMessageBox.critical(self, "Error", "Record not found.")
+		    return
+		obj.load_weight = str(load)
+		obj.unload_weight = str(unload)
+		obj.net_weight = str(net)
+		obj.load_weight_date = obj.load_weight_date or getNow()
+		obj.unload_weight_date = obj.unload_weight_date or getNow()
+		updateWeight(obj)
+		fp = gen_report(obj.__dict__, f"{obj.client_name}_weight_report_{obj.id}.pdf")
+		openFile(fp)
 		# ─────────────────────────────────────────────────
 
 		QtWidgets.QMessageBox.information(

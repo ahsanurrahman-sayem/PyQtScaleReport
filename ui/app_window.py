@@ -12,7 +12,8 @@ from ui.pages.by_client import ByClientPage
 
 
 def _load_stylesheet():
-	qss_path = os.path.join(os.path.dirname(__file__), "style.qss")
+	base = getattr(sys, '_MEIPASS', os.path.abspath("."))
+	qss_path = style = os.path.join(base,"assets", "styles", "style.qss")
 	if os.path.exists(qss_path):
 		with open(qss_path, "r") as f:
 			return f.read()

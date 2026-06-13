@@ -1,18 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
-from PyInstaller.utils.hooks import collect_all
+from PyInstaller.utils.hooks import collect_submodules
 
-datas = [('assets/fonts', 'assets/fonts'), ('assets/imgs', 'assets/imgs')]
-binaries = []
-hiddenimports = ['core']
-tmp_ret = collect_all('core')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+hiddenimports = []
+hiddenimports += collect_submodules('core')
+hiddenimports += collect_submodules('ui')
 
 
 a = Analysis(
-    ['__mainQtGUI__.py'],
-    pathex=['.'],
-    binaries=binaries,
-    datas=datas,
+    ['main.py'],
+    pathex=[],
+    binaries=[],
+    datas=[('assets/fonts', 'assets/fonts'), ('assets/imgs', 'assets/imgs'), ('assets/styles', 'assets/styles')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
