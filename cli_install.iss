@@ -5,7 +5,7 @@
 ;   ISCC.exe debtor.iss
 
 #define AppName      "Scale Report CLI"
-#define AppVersion   "2.6.3"
+#define AppVersion   "3.0.0"
 #define AppPublisher "Ahsanur Rahman"
 #define AppExeName   "Scale ReportCLI.exe"
 #define AppId        "{{A3F2C1D4-89B0-4E7A-9C3F-1D2E5B6A7F8D}"
