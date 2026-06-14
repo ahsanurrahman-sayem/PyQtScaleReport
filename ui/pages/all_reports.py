@@ -6,6 +6,10 @@ from ui.components import (
 from core.db import ARSTable, models
 from core.db.models import WeightData
 
+from core.db import getWeightById
+from core.gen_reportAPI import gen_report
+from core.support.utils import openFile
+
 HEADERS = ["ID", "Vehicle", "Client", "Load (kg)", "Unload (kg)", "Net (kg)", "Load Date", "Unload Date", "Operator"]
 
 
@@ -76,15 +80,13 @@ class AllReportsPage(QtWidgets.QWidget):
 		wid = int(weight_id.text())
 
 		# ── Real PDF open (uncomment) ─────────────────────
-		from core.db import getWeightById
-		from core.gen_reportAPI import gen_report
-		from core.support.utils import openFile
+		
 		data = getWeightById(wid)
 		if data:
 		    fp = gen_report(data.__dict__, f"{data.client_name}_weight_report_{wid}.pdf")
 		    openFile(fp)
 		# ─────────────────────────────────────────────────
-		QtWidgets.QMessageBox.information(self, "Open PDF", f"Would open PDF for report ID {wid}")
+		#QtWidgets.QMessageBox.information(self, "Open PDF", f"Would open PDF for report ID {wid}")
 
 
 def _stub_rows():

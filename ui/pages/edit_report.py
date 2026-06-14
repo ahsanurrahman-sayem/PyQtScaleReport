@@ -1,6 +1,9 @@
 from PyQt5 import QtWidgets
 from ui.components import make_label, make_button, make_field, make_card
-
+from core.db import getWeightById, updateWeight
+from core.support.timeUtils import getNow
+from core.gen_reportAPI import gen_report
+from core.support.utils import openFile
 
 class EditReportPage(QtWidgets.QWidget):
 	def __init__(self, parent=None):
@@ -90,10 +93,11 @@ class EditReportPage(QtWidgets.QWidget):
 		# ─────────────────────────────────────────────────
 
 		# Stub
-		self.current_id = int(raw)
-		self.load_field.setText("5000")
-		self.unload_field.setText("200")
-		self.info_label.setText(f"Loaded: ROMJAN TRADERS | DHK-{raw}")
+		#self.current_id = int(raw)
+		#self.load_field.setText("5000")
+		#self.unload_field.setText("200")
+		#self.info_label.setText(f"Loaded: ROMJAN TRADERS | DHK-{raw}")
+
 		self.load_field.setEnabled(True)
 		self.unload_field.setEnabled(True)
 		self.save_btn.setEnabled(True)
@@ -111,25 +115,23 @@ class EditReportPage(QtWidgets.QWidget):
 		net		= load - unload
 
 		# ── Real save (uncomment) ─────────────────────────
-		from core.db import getWeightById, updateWeight
-		from core.support.timeUtils import getNow
-		from core.gen_reportAPI import gen_report
-		from core.support.utils import openFile
-		obj = getWeightById(self.current_id)
-		if not obj:
-		    QtWidgets.QMessageBox.critical(self, "Error", "Record not found.")
-		    return
-		obj.load_weight = str(load)
-		obj.unload_weight = str(unload)
-		obj.net_weight = str(net)
-		obj.load_weight_date = obj.load_weight_date or getNow()
-		obj.unload_weight_date = obj.unload_weight_date or getNow()
-		updateWeight(obj)
-		fp = gen_report(obj.__dict__, f"{obj.client_name}_weight_report_{obj.id}.pdf")
-		openFile(fp)
-		# ─────────────────────────────────────────────────
+		try:
+			obj = getWeightById(self.current_id)
+			if not obj:
+	    			QtWidgets.QMessageBox.critical(self, "Error", "Record not found.")
+	    			return
+			obj.load_weight = str(load)
+			obj.unload_weight = str(unload)
+			obj.net_weight = str(net)
+			obj.load_weight_date = obj.load_weight_date or getNow()
+			obj.unload_weight_date = obj.unload_weight_date or getNow()
+			updateWeight(obj)
+			QtWidgets.QMessageBox.information(self, "Saved",f"Report #{self.current_id} updated.\nNet weight: {net} kg")
+			fp = gen_report(obj.__dict__, f"{obj.client_name}_weight_report_{obj.id}.pdf")
+			openFile(fp)
+		except Exception as e:
+		#raise e
+			QWidgets.QMessageBox.critical(self, "Error", f"Failed to update data:\n{e}")
+# ─────────────────────────────────────────────────
 
-		QtWidgets.QMessageBox.information(
-			self, "Saved",
-			f"Report #{self.current_id} updated.\nNet weight: {net} kg"
-		)
+		

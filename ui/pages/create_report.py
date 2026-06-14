@@ -9,7 +9,7 @@ from ui.components import (
 from core.db import ARSTable, WeightData, addNewWeight, models
 from core.gen_reportAPI import gen_report
 from core.support.utils import openFile
-from core.support.validator import isZero, isDigit
+from core.support.validator import isNotZeroThenGetTime, isDigit
 
 def _stub_clients():
     return [client.name for client in ARSTable("clients",models.Client).getDatas()]
@@ -52,14 +52,14 @@ class CreateReportPage(QtWidgets.QWidget):
             ("Client Name",    "client_name",  0, 0, "combo", _stub_clients),
 			("Vehicle No",     "vehicle_no",   0, 1, "combo", _stub_vehicles),
 			("Item",           "item_name",    0, 2, "combo", _stub_items),
+			("Load Weight (kg)",   "load_weight",   0, 3, "line", None),
+			("Unload Weight (kg)", "unload_weight", 0, 4, "line", None),
 			("Quantity",       "qty",          1, 2, "line",  None),
 			("Challan / LC No","challan_no",   1, 1, "line",  None),
 			("Driver",         "driver",       1, 3, "line",  None),
 			("Address",        "address",      1, 4, "line",  None),
 			("Contact",        "contact",      1, 0, "line",  None),
-			("Load Weight (kg)",   "load_weight",   0, 3, "line", None),
-			("Unload Weight (kg)", "unload_weight", 0, 4, "line", None),
-			]
+		]
 
 		for (label_text, key, col, row, ftype, src_fn) in field_defs:
 			lbl = QtWidgets.QLabel(label_text)
@@ -96,7 +96,7 @@ class CreateReportPage(QtWidgets.QWidget):
 		btn_row = QtWidgets.QHBoxLayout()
 		btn_row.setSpacing(10)
 
-		self.submit_btn = make_button("✅  Submit & Generate PDF")
+		self.submit_btn = make_button("✅  Submit")
 		self.submit_btn.setFixedHeight(38)
 		self.submit_btn.clicked.connect(self._submit)
 
@@ -137,10 +137,10 @@ class CreateReportPage(QtWidgets.QWidget):
 
 	def _submit(self):
 		try:
-			load	= self._get("load_weight")
-			unload	= self._get("unload_weight")
+			load	= isDigit(self._get("load_weight"))
+			unload	= isDigit(self._get("unload_weight"))
 
-			if not load.isdigit() or not unload.isdigit():
+			if not str(load).isdigit() or not str(unload).isdigit():
 				QtWidgets.QMessageBox.warning(self, "Invalid Input", "Load and Unload weights must be numbers.")
 				return
 
@@ -151,11 +151,11 @@ class CreateReportPage(QtWidgets.QWidget):
 				QtWidgets.QMessageBox.warning(self, "No Weight", "Both weights are zero. Please enter valid readings.")
 				return
 
-			client	= self._get("client_name") or "ANY"
-			net		= load_kg - unload_kg
+			client	= self._get("client_name") if self._get("client_name") != "" else  "ANY" or "ANY"
+			net		= str(load_kg - unload_kg)
 
 			data = {
-				"operator":		self._get("operator") or "Admin",
+				"operator":		self.operator_name,
 				"client_name":	client,
 				"vehicle_no":	self._get("vehicle_no"),
 				"item_name":	self._get("item_name"),
@@ -164,18 +164,19 @@ class CreateReportPage(QtWidgets.QWidget):
 				"driver":		self._get("driver"),
 				"address":		self._get("address"),
 				"contact":		self._get("contact"),
-				"load_weight":	load_kg,
-				"unload_weight":unload_kg,
+				"party_type": "CLIENT",
+				"load_weight_date": isNotZeroThenGetTime(load),
+				"unload_weight_date": isNotZeroThenGetTime(unload),
+				"load_weight":	load,
+				"unload_weight": unload,
 				"net_weight":	net,
 			}
 
 			# ── Real submission (uncomment) ────────────────
-			from core.db import WeightData, addNewWeight
-			from core.support.validator import isZero
 			weight_obj = WeightData(id=None, **data)
 			new_id = addNewWeight(weight_obj)
 			data["id"] = new_id
-			fp = gen_report(data, f"{client}_weight_report_{new_id}.pdf")
+			fp = gen_report(data, f"{data['client_name']}_weight_report_{data['id']}.pdf")
 			openFile(fp)
 			#──────────────────────────────────────────────
 
@@ -187,4 +188,5 @@ class CreateReportPage(QtWidgets.QWidget):
 			self.report_created.emit()
 
 		except Exception as e:
+			raise e
 			QtWidgets.QMessageBox.critical(self, "Error", str(e))

@@ -2,7 +2,7 @@
 ; Tested with Inno Setup 6.x
 ;
 ; Run from Inno Setup Compiler GUI or:
-;   ISCC.exe debtor.iss
+;   ISCC.exe installer.iss
 
 #define AppName      "Scale Report"
 #define AppVersion   "3.0.0"

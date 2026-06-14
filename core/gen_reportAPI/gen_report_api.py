@@ -1,9 +1,19 @@
-import os
+import sys
+import tempfile
+import os 
+
 from fpdf import FPDF
 from core.support.timeUtils import getToday,getNow
+from pathlib import Path 
 
-REPORT_DIR = os.path.join(os.path.dirname(__file__), "reports")
-os.makedirs(REPORT_DIR, exist_ok=True)
+if hasattr(sys, 'frozen'):
+	REPORT_DIR = Path(tempfile.gettempdir()) / "ScaleReport" / "reports"
+else:
+	REPORT_DIR = Path(__file__).parent / "reports"
+REPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+
 
 class WeightReportPDF(FPDF):
 	def __init__(self, operator: str):
