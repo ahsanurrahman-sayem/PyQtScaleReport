@@ -62,12 +62,8 @@ class ByClientPage(QtWidgets.QWidget):
 		rows = ARSTable("weights", models.WeightData).getDatasWithKey(
 		    f"client_name = '{client}'", limit=100
 		)
-		# ─────────────────────────────────────────────────
 
-		# Stub
-		rows = ARSTable("weights", models.WeightData).getDatasWithLimit(limit=100)
 		# ─────────────────────────────────────────────────
-
 		# Stub data for demonstration
 		#rows = _stub_rows()
 

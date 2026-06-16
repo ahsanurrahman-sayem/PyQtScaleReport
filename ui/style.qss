@@ -114,12 +114,12 @@ QLineEdit, QComboBox {
 	border-radius: 6px;
 	padding: 0px 0px;
 	color: #111827;
-	selection-background-color: #DBEAFE;
+	/*selection-background-color: #DBEAFE;*/
 }
 
 QLineEdit:focus, QComboBox:focus {
 	border: 1.5px solid #2563EB;
-	background-color: #FAFCFF;
+	/*background-color: #FAFCFF;*/
 }
 
 QLineEdit:read-only {
@@ -142,7 +142,7 @@ QComboBox QAbstractItemView {
 	border: 1px solid #E2E5EA;
 	border-radius: 6px;
 	selection-background-color: #EFF6FF;
-	selection-color: #000000;
+	selection-color: #0000ff;
 }
 
 QLabel {

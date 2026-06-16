@@ -68,11 +68,14 @@ def make_card(layout_type="form") -> QtWidgets.QWidget:
 def center_table_item(text) -> QtWidgets.QTableWidgetItem:
 	item = QtWidgets.QTableWidgetItem(str(text))
 	item.setTextAlignment(QtCore.Qt.AlignCenter)
+	if len(str(text)) > 5:
+		item.setData(QtCore.Qt.TextWordWrap,True)
 	return item
 
 
 def stretch_table_headers(table):
 	header = table.horizontalHeader()
+	header.setDefaultAlignment(QtCore.Qt.AlignCenter)
 	for i in range(table.columnCount()):
 		header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
 		hitem = table.horizontalHeaderItem(i)
@@ -86,9 +89,14 @@ def make_table(headers) -> QtWidgets.QTableWidget:
 	table.setHorizontalHeaderLabels(headers)
 	table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 	table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+	table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+	table.setWordWrap(True)
 	table.setAlternatingRowColors(True)
 	table.verticalHeader().setVisible(False)
 	table.setShowGrid(False)
+	table.verticalHeader().setSectionResizeMode(
+		QtWidgets.QHeaderView.ResizeToContents
+	)
 	return table
 
 

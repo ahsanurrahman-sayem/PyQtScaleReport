@@ -8,7 +8,7 @@ def isNotZeroThenGetTime( value: str):
 
 def isDigit(value):
 	#this method checks if the value is a number, if number then returns the value else retuns a 0
-	return value if str(value).isdigit() else 0
+	return value if str(value).isdigit() else "0"
 
 
 def isValue(value,valueToUse):

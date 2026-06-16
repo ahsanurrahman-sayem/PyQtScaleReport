@@ -180,10 +180,10 @@ class CreateReportPage(QtWidgets.QWidget):
 			openFile(fp)
 			#──────────────────────────────────────────────
 
-			QtWidgets.QMessageBox.information(
-				self, "Submitted",
-				f"Report created.\nClient: {client}\nNet Weight: {net} kg"
-			)
+			#QtWidgets.QMessageBox.information(
+			#	self, "Submitted",
+			#	f"Report created.\nClient: {client}\nNet Weight: {net} kg"
+			#)
 			self._clear_fields()
 			self.report_created.emit()
 

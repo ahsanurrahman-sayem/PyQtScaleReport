@@ -56,7 +56,7 @@ class AllReportsPage(QtWidgets.QWidget):
 
 		# Stub data for demonstration
 		#rows = _stub_rows()
-
+		self.table.setWordWrap(True)
 		for idx, item in enumerate(rows):
 			self.table.insertRow(idx)
 			self.table.setItem(idx, 0, center_table_item(str(item.id)))
