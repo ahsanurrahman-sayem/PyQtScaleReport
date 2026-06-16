@@ -5,9 +5,9 @@
 ;   ISCC.exe debtor.iss
 
 #define AppName      "Scale Report CLI"
-#define AppVersion   "3.0.0"
+#define AppVersion   "2.8.0"
 #define AppPublisher "Ahsanur Rahman"
-#define AppExeName   "Scale ReportCLI.exe"
+#define AppExeName   "ScaleReportCLI.exe"
 #define AppId        "{{A3F2C1D4-89B0-4E7A-9C3F-1D2E5B6A7F8D}"
 #define SourceDir    "dist\ScaleReportCLI\*"
 
@@ -96,7 +96,7 @@ var
   ResultCode: Integer;
 begin
   // Attempt to close a running DebtorManager gracefully
-  Exec('taskkill.exe', '/F /IM Scale ReportCLI.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('taskkill.exe', '/F /IM ScaleReportCLI.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   Result := True;
 end;
 
@@ -108,7 +108,7 @@ begin
     MsgBox(
       'Debtor Manager has been uninstalled.' + #13#10 + #13#10 +
       'Your database file is preserved at:' + #13#10 +
-      '%APPDATA%\DebtorManager\debtor.db' + #13#10 + #13#10 +
+      '%APPDATA%\Scale Report CLI\' + #13#10 + #13#10 +
       'You can delete it manually if you no longer need it.',
       mbInformation,
       MB_OK

@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('assets/fonts', 'assets/fonts'), ('assets/imgs', 'assets/imgs')]
+datas = [('assets/imgs', 'assets/imgs')]
 binaries = []
 hiddenimports = ['core']
 tmp_ret = collect_all('core')
@@ -33,7 +33,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

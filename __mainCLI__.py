@@ -58,53 +58,55 @@ def main():
 	elif args.delete is not None:
 		delete_report(args.delete)
 	else:
-		while True:
-			print("\n=== Scale Report CLI Menu ===")
-			for index,(key,value) in enumerate(catList.items()):
-					print(value)
-			choice = input("\nEnter your choice: ").strip()
-			cl()
-			if choice == '1':
-				create_report()
-			elif choice == '2':
-				report_id = input("Enter report ID to search: ")
-				if report_id.isdigit():
-					search_report(int(report_id))
-			elif choice == '3':
-				view_all_reports()
-			elif choice == '4':
-				report_id = input("Enter report ID to edit: ")
-				if report_id.isdigit():
-					edit_report(int(report_id))
-					#view_all_reports()
-			elif choice == '5':
-				report_id = input("Enter report ID to delete: ")
-				if report_id.isdigit():
-					delete_report(int(report_id))
+		try:
+			while True:
+				print("\n=== Scale Report CLI Menu ===")
+				for index,(key,value) in enumerate(catList.items()):
+						print(value)
+				choice = input("\nEnter your choice: ")
+				cl()
+				if choice == '1':
+					create_report()
+				elif choice == '2':
+					report_id = input("Enter report ID to search: ")
+					if report_id.isdigit():
+						search_report(int(report_id))
+				elif choice == '3':
 					view_all_reports()
+				elif choice == '4':
+					report_id = input("Enter report ID to edit: ")
+					if report_id.isdigit():
+						edit_report(int(report_id))
+						#view_all_reports()
+				elif choice == '5':
+					report_id = input("Enter report ID to delete: ")
+					if report_id.isdigit():
+						delete_report(int(report_id))
+						view_all_reports()
+					else:
+						view_all_reports()
+						del_last_report()
+	
+				elif choice == '6':
+					report_id = input("Enter current id:")
+					new_id = input("Enter modified id:")
+					if report_id.isdigit():
+						modify_id(report_id,new_id)
+				elif choice == '7':
+					add_items()
+				elif choice == '8':
+					view_items()
+				elif choice == '9':
+					add_user()
+				elif choice == '10':
+					view_users()
+				elif choice == '11':
+					add_client()
+				elif choice == '0':
+					break
 				else:
-					view_all_reports()
-					del_last_report()
-
-			elif choice == '6':
-				report_id = input("Enter current id:")
-				new_id = input("Enter modified id:")
-				if report_id.isdigit():
-					modify_id(report_id,new_id)
-			elif choice == '7':
-				add_items()
-			elif choice == '8':
-				view_items()
-			elif choice == '9':
-				add_user()
-			elif choice == '10':
-				view_users()
-			elif choice == '11':
-				add_client()
-			elif choice == '0':
-				break
-			else:
-				print("Invalid choice. Please try again.")
-
+					print("Invalid choice. Please try again.")
+		except Exception as e:
+			print(e)
 if __name__ == "__main__":
 	main()
