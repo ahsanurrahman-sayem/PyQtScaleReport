@@ -13,7 +13,8 @@ from core.cli import (
 	modify_id,
 	delete_report,
 	add_client,
-	del_last_report
+	del_last_report,
+	get_all_clients,
 )
 
 def cl():
@@ -34,6 +35,7 @@ def main():
 		'9':"9. Add User",
 		'10':"10. View Users\n",
 		'11':"11. Add Client\n",
+        	'12':"12. View All Client's listed\n",
 		'0':"0. Exit",
 	}
 
@@ -63,7 +65,7 @@ def main():
 				print("\n=== Scale Report CLI Menu ===")
 				for index,(key,value) in enumerate(catList.items()):
 						print(value)
-				choice = input("\nEnter your choice: ")
+				choice = input("\nEnter your choice: ").strip()
 				cl()
 				if choice == '1':
 					create_report()
@@ -102,11 +104,13 @@ def main():
 					view_users()
 				elif choice == '11':
 					add_client()
+				elif choice == '12':
+					get_all_clients()
 				elif choice == '0':
 					break
 				else:
 					print("Invalid choice. Please try again.")
 		except Exception as e:
-			print(e)
+		    raise e
 if __name__ == "__main__":
 	main()

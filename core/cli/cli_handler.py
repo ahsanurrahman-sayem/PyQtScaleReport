@@ -21,6 +21,7 @@ from core.db import (
 from core.support.validator import isZero, isEmpty
 
 from core.db.models import WeightData,User,Item, Client
+from core.db import ARSTable, models
 
 from core.gen_reportAPI import gen_report
 from core.support.timeUtils import getNow
@@ -241,6 +242,13 @@ def add_client():
 			addItem(Client(id=None,name=item))
 		else:
 			return
+
+def get_all_clients():
+	headers=["Client","id"]
+	table = [[client.name,client.id] for client in ARSTable("clients", models.Client, unique_fields="name").getDatas()]
+	print("\nAll Clients:\n")
+	print(tabulate(table,headers,tablefmt="grid"))
+
 def open_pdf(fp):
 	try:
 		if platform.system() == "Windows" or platform.system() == "nt":
@@ -251,3 +259,4 @@ def open_pdf(fp):
 			subprocess.run(["xdg-open", fp])
 	except Exception as e:
 		print(f"⚠ Could not open PDF automatically: {e}")
+
